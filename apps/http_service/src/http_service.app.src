@@ -1,0 +1,16 @@
+{application, http_service,
+ [{description, "An OTP application"},
+  {vsn, "0.1.1"},
+  {registered, []},
+  {mod, {http_service_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    cowboy
+   ]},
+  {env,[{port, 8082}]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.

@@ -1,0 +1,22 @@
+{application, morning,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {morning_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    sockjs,
+    jsx,
+    eredis,
+    mysql,
+    lager,
+    gpb,
+    http_service
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache-2.0"]},
+  {links, []}
+ ]}.
