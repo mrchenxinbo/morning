@@ -31,20 +31,25 @@ load()->
     http_service_dispatch:reload().
 
 handle(Req, State) ->
-    {Method, Req2} = cowboy_req:method(Req),
+    {Method, Req1} = cowboy_req:method(Req),
     {<<"/api/", Path/binary>>, _} = cowboy_req:path(Req),
-    Req3 =
+    Req2 =
         try
-            {ok, R} = handle_request(Req2, Method, binary:split(Path, <<"/">>, [global])),
+            {ok, R} = handle_request(Req1, Method, binary:split(Path, <<"/">>, [global])),
             R
         catch
             Type:Error ->
                 % ?ERROR_MSG("handle http request Type=~p, Error=~p, S=~p",
                 %             [Type, Error, erlang:get_stacktrace()]),
                 
-                http_reply_error(Req2, 403, <<"uncath, exception">>)
+                http_reply_error(Req1, 403, <<"uncath, exception">>)
         end,
-    {ok, Req3, State}.
+        Headers = cowboy_req:parse_header(<<"access-control-request-headers">>, Req2, <<>>),
+        Req3 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req2),
+        Req4 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, Headers, Req3),
+        Req5 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"GET, POST, OPTIONS">>, Req4),
+        Req6 = cowboy_req:set_resp_header(<<"access-control-allow-credentials">>, <<"true">>, Req5),
+   {ok, Req6, State}.
 
 
 handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, Type])->
