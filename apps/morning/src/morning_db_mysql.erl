@@ -11,7 +11,7 @@
 
 -module(morning_db_mysql).
 
--export([config_init/0, get_worker/0]).
+-export([config_init/0, get_worker/0,querry/1]).
 
 config_init() ->
     {ok, MysqlParmas} = application:get_env(morning, mysql),
@@ -39,5 +39,5 @@ get_worker()->
     morning_db_mysql_sup:get_random_pid(<<"db_mysql">>).   
 
 querry(Sql)->
-    mysql:querry(get_worker(), Sql).
+    mysql:query(get_worker(), Sql).
 
