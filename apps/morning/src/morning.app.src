@@ -12,7 +12,8 @@
     mysql,
     lager,
     gpb,
-    http_service
+    http_service,
+    cuesport
    ]},
   {env,[]},
   {modules, []},
