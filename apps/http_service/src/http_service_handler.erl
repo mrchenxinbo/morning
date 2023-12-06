@@ -44,22 +44,20 @@ handle(Req, State) ->
                 
                 http_reply_error(Req1, 403, <<"uncath, exception">>)
         end,
-        Headers = cowboy_req:parse_header(<<"access-control-request-headers">>, Req2, <<>>),
-        Req3 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req2),
-        Req4 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, Headers, Req3),
-        Req5 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"GET, POST, OPTIONS">>, Req4),
-        Req6 = cowboy_req:set_resp_header(<<"access-control-allow-credentials">>, <<"true">>, Req5),
-   {ok, Req6, State}.
+   {ok, Req2, State}.
 
 
 handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, Type])->
     {ok, Data, _} = cowboy_req:body(Req),
     #{<<"user">> := User, <<"password">> := Password} = jsx:decode(Data, [return_maps]), 
-    R = morning_api_handler:login({User, Password, Type}),
-    http_reply(Req, R);
-
-handle_request(Req, Method, [<<"users">>, UserId|_] = Path)->
+    case morning_api_handler:handle(login, {binary_to_list(User), binary_to_list(Password), binary_to_integer(Type)}) of
+        {ok, R}->
+            http_reply(Req, R);
+        {error, Reason}->
+            http_reply_error(Req, 403, Reason)
+    end;
     
+handle_request(Req, Method, [<<"users">>, UserId|_] = Path)->
     case cowboy_req:parse_header(<<"authorization">>, Req) of
          {ok, {_, HttpToken}, _}->
             case check_token(UserId, HttpToken) of

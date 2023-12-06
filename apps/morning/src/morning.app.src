@@ -13,7 +13,8 @@
     lager,
     gpb,
     http_service,
-    cuesport
+    cuesport,
+    ibrowse
    ]},
   {env,[]},
   {modules, []},
