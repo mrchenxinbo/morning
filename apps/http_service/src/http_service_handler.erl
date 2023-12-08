@@ -12,13 +12,17 @@
 -export([init/3]).
 -export([handle/2]).
 -export([terminate/3]).
+
+-export([test_proto/0]).
+
+-include("pb_messagebody.hrl").
 %%%===================================================================
 %%% API
 %%%===================================================================
 
 paths() ->
-    [{"/api/users/:uid/:type", ?MODULE, []},
-     {"/api/users/user_login/:type", ?MODULE, []}
+    [{"/api/users/:uid/:cmd", ?MODULE, []},
+     {"/api/users/user_login/:cmd", ?MODULE, []}
      ].
 init(_Type, Req, []) ->
     {ok, Req, undefined}.
@@ -47,10 +51,9 @@ handle(Req, State) ->
    {ok, Req2, State}.
 
 
-handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, Type])->
+handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
     {ok, Data, _} = cowboy_req:body(Req),
-    #{<<"user">> := User, <<"password">> := Password} = jsx:decode(Data, [return_maps]), 
-    case morning_api_handler:handle(login, {binary_to_list(User), binary_to_list(Password), binary_to_integer(Type)}) of
+    case morning_api_handler:handle(login, morning_msg:decode_login(Data)) of
         {ok, R}->
             http_reply(Req, R);
         {error, Reason}->
@@ -69,6 +72,12 @@ handle_request(Req, Method, [<<"users">>, UserId|_] = Path)->
         _->
             http_reply_error(Req, 403, <<"token is null">>)
     end;
+    % {ok, Data, _} = cowboy_req:body(Req),
+    % io:format("===DataDataData====~p~n", [Data]),
+    % A= pb_messagebody:decode_msg(base64:decode(Data), 'test'),
+    % io:format("=======~p~n", [A]),
+    % do;
+
 handle_request(Req, Method, Path)->
     http_reply_error(Req, 403, <<"request is illeagal">>).
 
@@ -94,3 +103,7 @@ http_reply(Req, Data)->
 
 check_token(User, Token)->
     true.
+
+test_proto()->
+    T = #test{user ="123", password= "234", code="123dsdsdwe"},
+    pb_messagebody:encode_msg(T).

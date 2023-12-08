@@ -1,0 +1,11 @@
+{application, morning_proto,
+ [
+  {description, "MSync protobuf definitions"},
+  {vsn, git},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.

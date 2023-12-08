@@ -1,0 +1,42 @@
+
+MAKE = case os:getenv("MAKE") of
+           false ->  "make";
+           Other -> Other
+       end,
+{ok, CwdBase} = file:get_cwd(),
+Cwd = CwdBase,
+
+Root =  Cwd ++ "/_build/default/lib",
+
+io:format("Root ~p ~n", [Root]),
+
+
+EUnitTestOpts = [],
+Cfg =  [],
+
+Macros = [],
+[
+ {
+   pre_hooks,
+   [
+   ]
+ },
+ {cover_enabled, true},
+ {eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
+ {erl_opts,
+  [
+   {i, filename:join([Root, "gpb", "include"])}
+  ] ++ EUnitTestOpts ++ Macros
+ },
+ {eunit_compile_opts, Macros},
+ {
+   post_hooks,
+   [
+   ]
+ }
+].
+
+%% Local Variables:
+%% mode:erlang
+%% coding: nil
+%% End:

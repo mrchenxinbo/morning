@@ -11,10 +11,18 @@
 -define(TYPE_PASSWORD,1).
 -define(TYPE_WX,2).
 -define(TYPE_DY,3).
+-include("pb_messagebody.hrl").
 
 
-handle(login, {User, Password, ?TYPE_PASSWORD})->
-    {ok, get_token(User, ?TYPE_PASSWORD)};
+handle(login, #'LoginReq'{account = User, loginPass = Password, loginType = LoginType})->
+    case LoginType of
+        ?TYPE_PASSWORD ->
+        ?TYPE_WX->
+        ?TYPE_WX->    
+        _->
+                        
+    end
+
 
 handle(login, {User, Password, ?TYPE_WX})->
     case login_request_other(?TYPE_WX, {Password}) of

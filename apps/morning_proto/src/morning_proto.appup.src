@@ -1,0 +1,11 @@
+{git,
+ [{"23.2.1",
+   [{load_module,msync_msg},
+    {load_module,msync_msg_ns_chat},
+    {load_module,msync_msg_ns_muc},
+    {load_module,pb_mucbody}]}],
+ [{"23.2.1",
+   [{load_module,pb_mucbody},
+    {load_module,msync_msg_ns_muc},
+    {load_module,msync_msg_ns_chat},
+    {load_module,msync_msg}]}]}.

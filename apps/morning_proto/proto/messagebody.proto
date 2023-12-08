@@ -1,0 +1,52 @@
+option java_outer_classname = "ClientCmdConstantsProto";
+package proto.client;
+syntax = "proto2";
+
+message Status {
+  enum ErrorCode {
+    OK                = 0;
+    FAIL              = 1;
+  };
+
+  optional ErrorCode     errorCode     = 1;
+  optional string        reason        = 2;
+}
+
+
+enum Command {
+  AUTH    = 1;
+  PACKGE  = 2;
+}
+
+
+//放在Morning commandMsg字段
+message Morning_c2s 
+{
+    optional uint64  msgId     = 1; // msg_id socekt
+    optional Command command   = 2;
+    optional bytes   payload   = 3; // 根据command 服务端解析对应proto协议
+ }
+
+//放在Morning command_msg字段
+message Morning_s2c 
+{
+    optional uint64  msgId     = 1; // msg_id socekt
+    optional Command command   = 2;
+    optional Status  status    = 3; // 服务端返回状态信息
+    optional bytes   payload   = 4; // 根据command client解析对应proto协议
+}
+
+message LoginReq{
+    required string account = 1; //账号
+    required string loginPass = 2; //登录密码
+    required int32  loginType = 3; // 登录类型 1微信 2抖音 3账号密码
+    optional string version = 4; //客户端版本号  暂时不用
+    optional string jsVersion = 5; //js版本号 暂时不用
+    optional string channel = 6;    //登陆渠道
+}
+
+message LoginResp 
+{
+    required string token = 1; // 登录凭证 会放在http头里每次带过去 
+    required int32  loginType = 3; // 登录类型 1微信 2抖音 3账号密码
+}
