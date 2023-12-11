@@ -1,5 +1,5 @@
-PB_PROTOS := messagebody 
-PB_MORNING := messagebody 
+PB_PROTOS := ClientCmdConstants Login
+PB_MORNING := ClientCmdConstants Login 
 
 MORNING_SHARE_DIR := proto
 MORNING_GPB_DIR := $(shell  echo ../../_build/default/lib; )

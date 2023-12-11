@@ -25,7 +25,8 @@ Macros = [],
  {eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
  {erl_opts,
   [
-   {i, filename:join([Root, "gpb", "include"])}
+   {i, filename:join([Root, "gpb", "include"])},
+   {i, filename:join([Root, "morning_proto", "include"])}
   ] ++ EUnitTestOpts ++ Macros
  },
  {eunit_compile_opts, Macros},

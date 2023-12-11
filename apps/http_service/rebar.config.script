@@ -13,7 +13,9 @@ Root= Cwd ++ "/_build/default/lib",
  {erl_opts,
    [
     {i, filename:join(["include"])},
-    {i, filename:join([Root, "morning_proto", "include"])}
+    {i, filename:join([Root, "morning_proto", "include"])},
+    {i, filename:join([Root, "morning", "include"])}
+
   ] ++ EUnitTestOpts ++ Macros
  }
 ].

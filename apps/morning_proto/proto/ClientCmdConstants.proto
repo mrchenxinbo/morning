@@ -1,0 +1,7 @@
+option java_outer_classname = "ClientCmdConstantsProto";
+syntax = "proto3";
+
+enum ClientCmd {
+    LOGIN_MSG = 1; // 登录
+
+}

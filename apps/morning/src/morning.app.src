@@ -14,7 +14,8 @@
     gpb,
     http_service,
     cuesport,
-    ibrowse
+    ibrowse,
+    morning_proto
    ]},
   {env,[]},
   {modules, []},

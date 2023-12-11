@@ -13,9 +13,7 @@
 -export([handle/2]).
 -export([terminate/3]).
 
--export([test_proto/0]).
-
--include("pb_messagebody.hrl").
+-include("logger.hrl").
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -37,14 +35,16 @@ load()->
 handle(Req, State) ->
     {Method, Req1} = cowboy_req:method(Req),
     {<<"/api/", Path/binary>>, _} = cowboy_req:path(Req),
+    ?ERROR_MSG("handle http request Req=~p~n",
+                            [Req1]),
     Req2 =
         try
             {ok, R} = handle_request(Req1, Method, binary:split(Path, <<"/">>, [global])),
             R
         catch
             Type:Error ->
-                % ?ERROR_MSG("handle http request Type=~p, Error=~p, S=~p",
-                %             [Type, Error, erlang:get_stacktrace()]),
+                ?ERROR_MSG("handle http request Type=~p, Error=~p, S=~p",
+                            [Type, Error, erlang:get_stacktrace()]),
                 
                 http_reply_error(Req1, 403, <<"uncath, exception">>)
         end,
@@ -53,11 +53,14 @@ handle(Req, State) ->
 
 handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
     {ok, Data, _} = cowboy_req:body(Req),
-    case morning_api_handler:handle(login, morning_msg:decode_login(Data)) of
+    case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
         {ok, R}->
-            http_reply(Req, R);
-        {error, Reason}->
-            http_reply_error(Req, 403, Reason)
+            Decodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
+            Decodedata1 = morning_msg:packet_http_data(1, Decodedata),
+            http_reply(Req, Decodedata1);
+        {error, ErrorData}->
+            Decodedata1 = morning_msg:packet_http_data(2, <<>>),
+            http_reply(Req, Decodedata1)
     end;
     
 handle_request(Req, Method, [<<"users">>, UserId|_] = Path)->
@@ -97,13 +100,9 @@ http_reply_error(Req, Code, Reason)->
 
 http_reply(Req, Data)->
     cowboy_req:reply(200,
-    [{<<"Content-Type">>, <<"application/json">>}],
-    jsx:encode(Data),
+    [{<<"Content-Type">>, <<"application/x-protobuf">>}],
+    Data,
     Req).
 
 check_token(User, Token)->
     true.
-
-test_proto()->
-    T = #test{user ="123", password= "234", code="123dsdsdwe"},
-    pb_messagebody:encode_msg(T).

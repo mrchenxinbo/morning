@@ -1,4 +1,5 @@
-CC_FILES += messagebody.pb.cc
+CC_FILES += Login.pb.cc
+CC_FILES += ClientCmdConstants.pb.cc
 
 all: $(CC_FILES)
 

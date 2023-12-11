@@ -13,14 +13,33 @@
 
 -compile(export_all).
 
--include("pb_messagebody.hrl").
+-include("pb_ClientCmdConstants.hrl").
+-include("pb_Login.hrl").
 
 %%=================api===========================
-decode_login(Binary)->
-    decode_do(pb_messagebody, 'LoginReq', Binary).
-encode_login(Data)->
-    decode_do(pb_messagebody, 'LoginReq', Data).
-    
+decode_msg(CmdValue, Binary)->
+    CmdSymbol = cmd_value_to_symbol(CmdValue),
+    decode(CmdSymbol, Binary).
+
+encode_msg(CmdValue, Data) when is_integer(CmdValue)->
+    CmdSymbol = cmd_value_to_symbol(CmdValue),
+    encode(CmdSymbol, Data);
+encode_msg(CmdSymbol, Data)->
+    encode(CmdSymbol, Data).
+
+
+%%============decode info  start=====================    
+decode('LOGIN_MSG', Binary)->
+    decode_do(pb_Login, 'LoginReq', Binary).
+
+
+
+%%============encode info  start=====================
+encode('LOGIN_MSG', Data)->
+    encode_do(pb_Login, 'LoginResp', Data).
+
+
+
 
 
 
@@ -28,10 +47,21 @@ encode_login(Data)->
 
 
 %%=================intenal fun===================
-
 decode_do(Module, Proto, Data)->
     Module:decode_msg(Data, Proto).
 
 encode_do(Module, Proto, Data)->
     Module:encode_msg(Data, Proto).
+
+packet_http_data(Status, Binary)->
+    <<Status:32, Binary/binary>>.
+
+cmd_symbol_to_value(Symbol)->
+    pb_ClientCmdConstants:enum_value_by_symbol_ClientCmd(Symbol).
+
+cmd_value_to_symbol(Value)->
+    pb_ClientCmdConstants:enum_symbol_by_value_ClientCmd(Value).
+
+    
+
 

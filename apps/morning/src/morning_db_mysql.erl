@@ -39,5 +39,13 @@ get_worker()->
     morning_db_mysql_sup:get_random_pid(<<"db_mysql">>).   
 
 querry(Sql)->
-    mysql:query(get_worker(), Sql).
+    case mysql:query(get_worker(), list_to_binary(Sql)) of
+        ok->
+            {ok, []};
+        {ok, _Query, Result}->
+            {ok, Result};    
+        {error, _, _}->
+            {error, db_error}
+
+    end.
 

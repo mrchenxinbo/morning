@@ -1,7 +1,8 @@
-option java_outer_classname = "ClientCmdConstantsProto";
+option java_outer_classname = "LoginProto";
 package proto.client;
 syntax = "proto2";
 
+/*  there is no need  ==================
 message Status {
   enum ErrorCode {
     OK                = 0;
@@ -35,6 +36,8 @@ message Morning_s2c
     optional Status  status    = 3; // 服务端返回状态信息
     optional bytes   payload   = 4; // 根据command client解析对应proto协议
 }
+========================================
+*/
 
 message LoginReq{
     required string account = 1; //账号
@@ -47,6 +50,8 @@ message LoginReq{
 
 message LoginResp 
 {
-    required string token = 1; // 登录凭证 会放在http头里每次带过去 
-    required int32  loginType = 3; // 登录类型 1微信 2抖音 3账号密码
+    required string uid = 1; // 登录凭证 会放在http头里每次带过去
+    required string token = 2; // 登录凭证 会放在http头里每次带过去
+    optional uint32 expire_in = 3; // 过期时间 
+    optional int32 mission = 4; // 关卡id  当前打到第几关
 }
