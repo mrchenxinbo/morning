@@ -5,3 +5,14 @@ enum ClientCmd {
     LOGIN_MSG = 1; // 登录
 
 }
+
+
+enum StatusCode {
+    OK = 1; // 成功
+    ERROR_PARAMA = 1000; // 参数错误
+    ERROR_SERVER = 1001; // 服务异常
+    ERROR_TOKEN_TIMEOUT = 1002; // token超时失效
+    ERROR_TOKEN_NOT_EXIST = 1003; // token不存在
+    ERROR_TOKEN_NOT_TRUE = 1004; // token不正确
+
+}

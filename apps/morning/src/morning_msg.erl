@@ -54,7 +54,8 @@ encode_do(Module, Proto, Data)->
     Module:encode_msg(Data, Proto).
 
 packet_http_data(Status, Binary)->
-    <<Status:32, Binary/binary>>.
+    Value = pb_ClientCmdConstants:enum_value_by_symbol_StatusCode(Status),
+    <<Value:32, Binary/binary>>.
 
 cmd_symbol_to_value(Symbol)->
     pb_ClientCmdConstants:enum_value_by_symbol_ClientCmd(Symbol).

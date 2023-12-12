@@ -6,7 +6,7 @@
 -module(morning_api_handler).
 
 
--export([handle/1, login_request_other/2, get_token/2, user_login_or_register/3]).
+-export([handle/1, login_request_other/2, user_login_or_register/3]).
 
 -define(TYPE_PASSWORD,3).
 -define(TYPE_WX,2).
@@ -15,6 +15,7 @@
 -include("pb_ClientCmdConstants.hrl").
 -include("pb_Login.hrl").
 -include("logger.hrl").
+-include("morning.hrl").
 
 handle(#'LoginReq'{account = UserBinary, loginPass = PasswordBinary, loginType = LoginType}=Info)->
     ?INFO_MSG("32323232=====~p~n", [Info]),
@@ -27,30 +28,17 @@ handle(#'LoginReq'{account = UserBinary, loginPass = PasswordBinary, loginType =
     end.
 
 
-
-
-get_token(User, Type)->
-    Base = "YWMt39RfMMOqEeKYE_GW7tu81ABCDT71lGijyjG4VUIC2AwZGzUjVbPp_4qRD5k",
-    Now = time_util:erlang_system_time(nano_seconds),
-    Token = base64:encode(integer_to_list(Now)++Base++User++integer_to_list(Type)),
-    Expire = time_util:erlang_system_time(seconds)+3600*12,
-    {Token, Expire}.
-
-
-
-
-
 user_login_or_register(User, Password, Type)->
     case Type of
         ?TYPE_PASSWORD ->
             case morning_db_user:user_info_password(util:to_list(User)) of
                 {ok, {UidB, Password}}->
                     morning_db_user:user_info_update_by_uid(util:to_list(User)),
-                    {Token, Expire} = get_token(util:to_list(UidB), Type),        
+                    {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
                     {ok, {UidB, Token, Expire}};
                 {error, not_register}->
                     {ok, UidB} = morning_db_user:user_info_write("", util:to_list(Password), "", util:to_list(Type)),
-                    {Token, Expire} = get_token(util:to_list(UidB), Type),        
+                    {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
                     {ok, {UidB, Token, Expire}};
                 _->
                     {error, <<>>}
@@ -59,13 +47,13 @@ user_login_or_register(User, Password, Type)->
             case login_request_other(?TYPE_WX, {util:to_list(Password)}) of
                 {ok, #{<<"session_key">> := Session_key, <<"unionid">> := Unionid}}->
                     case morning_db_user:user_info_read_by_unionid(util:to_list(Unionid)) of
-                        {ok, {UidB, Nickname, Unionid, Channel}} ->
+                        {ok, #user_info{uid = UidB, nickname = Nickname, unionid = Unionid, channel = Channel}} ->
                             morning_db_user:user_info_update_by_uid(util:to_list(UidB)),
-                            {Token, Expire} = get_token(util:to_list(UidB), Type),        
+                            {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
                             {ok, {UidB, Token, Expire}};
                         {ok, []}->
                             {ok, UidB} = morning_db_user:user_info_write("", "", util:to_list(Unionid), util:to_list(Type)),
-                            {Token, Expire} = get_token(util:to_list(UidB), Type),        
+                            {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
                             {ok, {UidB, Token, Expire}};
                         {error, _}->
                             {error, <<>>}     

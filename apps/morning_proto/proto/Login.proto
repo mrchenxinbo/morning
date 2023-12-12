@@ -50,7 +50,7 @@ message LoginReq{
 
 message LoginResp 
 {
-    required string uid = 1; // 登录凭证 会放在http头里每次带过去
+    required string uid = 1; // 服务端唯一id
     required string token = 2; // 登录凭证 会放在http头里每次带过去
     optional uint32 expire_in = 3; // 过期时间 
     optional int32 mission = 4; // 关卡id  当前打到第几关

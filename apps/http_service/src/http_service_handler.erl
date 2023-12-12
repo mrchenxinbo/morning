@@ -14,6 +14,8 @@
 -export([terminate/3]).
 
 -include("logger.hrl").
+-include("pb_ClientCmdConstants.hrl").
+
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -35,7 +37,7 @@ load()->
 handle(Req, State) ->
     {Method, Req1} = cowboy_req:method(Req),
     {<<"/api/", Path/binary>>, _} = cowboy_req:path(Req),
-    ?ERROR_MSG("handle http request Req=~p~n",
+    ?INFO_MSG("handle http request Req=~p~n",
                             [Req1]),
     Req2 =
         try
@@ -45,8 +47,8 @@ handle(Req, State) ->
             Type:Error ->
                 ?ERROR_MSG("handle http request Type=~p, Error=~p, S=~p",
                             [Type, Error, erlang:get_stacktrace()]),
-                
-                http_reply_error(Req1, 403, <<"uncath, exception">>)
+                Decodedata1 = morning_msg:packet_http_data('ERROR_SERVER', <<>>),
+                http_reply(Req, Decodedata1)
         end,
    {ok, Req2, State}.
 
@@ -56,33 +58,42 @@ handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
     case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
         {ok, R}->
             Decodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
-            Decodedata1 = morning_msg:packet_http_data(1, Decodedata),
+            Decodedata1 = morning_msg:packet_http_data('OK', Decodedata),
             http_reply(Req, Decodedata1);
-        {error, ErrorData}->
-            Decodedata1 = morning_msg:packet_http_data(2, <<>>),
+        {error, ErrStatus}->
+            Decodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
             http_reply(Req, Decodedata1)
     end;
     
-handle_request(Req, Method, [<<"users">>, UserId|_] = Path)->
+handle_request(Req, <<"POST">>, [<<"users">>, UserId, CMD] = Path)->
     case cowboy_req:parse_header(<<"authorization">>, Req) of
          {ok, {_, HttpToken}, _}->
-            case check_token(UserId, HttpToken) of
+            case morning_token:check_token(UserId, HttpToken) of
                 true->
-                    handle_request_do(Req, Method, Path);
-                false->
-                    http_reply_error(Req, 403, <<"token not right">>)    
+
+
+                    {ok, Data, _} = cowboy_req:body(Req),
+                    case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
+                        {ok, R}->
+                            Decodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
+                            Decodedata1 = morning_msg:packet_http_data('OK', Decodedata),
+                            http_reply(Req, Decodedata1);
+                        {error, ErrStatus}->
+                            Decodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
+                            http_reply(Req, Decodedata1)
+                    end;
+                {error, ErrStatus}->
+                    Decodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
+                    http_reply(Req, Decodedata1)
             end;
         _->
-            http_reply_error(Req, 403, <<"token is null">>)
+            Decodedata1 = morning_msg:packet_http_data('ERROR_PARAMA', <<>>),
+            http_reply(Req, Decodedata1)
     end;
-    % {ok, Data, _} = cowboy_req:body(Req),
-    % io:format("===DataDataData====~p~n", [Data]),
-    % A= pb_messagebody:decode_msg(base64:decode(Data), 'test'),
-    % io:format("=======~p~n", [A]),
-    % do;
 
 handle_request(Req, Method, Path)->
-    http_reply_error(Req, 403, <<"request is illeagal">>).
+    Decodedata1 = morning_msg:packet_http_data('ERROR_PARAMA', <<>>),
+    http_reply(Req, Decodedata1).
 
 
 

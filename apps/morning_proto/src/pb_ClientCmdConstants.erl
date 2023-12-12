@@ -18,6 +18,7 @@
 -export([find_enum_def/1, fetch_enum_def/1]).
 -export([enum_symbol_by_value/2, enum_value_by_symbol/2]).
 -export([enum_symbol_by_value_ClientCmd/1, enum_value_by_symbol_ClientCmd/1]).
+-export([enum_symbol_by_value_StatusCode/1, enum_value_by_symbol_StatusCode/1]).
 -export([get_service_names/0]).
 -export([get_service_def/1]).
 -export([get_rpc_names/1]).
@@ -52,7 +53,8 @@
 
 %% enumerated types
 -type 'ClientCmd'() :: 'LOGIN_MSG'.
--export_type(['ClientCmd'/0]).
+-type 'StatusCode'() :: 'OK' | 'ERROR_PARAMA' | 'ERROR_SERVER' | 'ERROR_TOKEN_TIMEOUT' | 'ERROR_TOKEN_NOT_EXIST' | 'ERROR_TOKEN_NOT_TRUE'.
+-export_type(['ClientCmd'/0, 'StatusCode'/0]).
 
 %% message types
 
@@ -232,7 +234,7 @@ cons(Elem, Acc, _TrUserData) -> [Elem | Acc].
 'erlang_++'(A, B, _TrUserData) -> A ++ B.
 
 
-get_msg_defs() -> [{{enum, 'ClientCmd'}, [{'LOGIN_MSG', 1}]}].
+get_msg_defs() -> [{{enum, 'ClientCmd'}, [{'LOGIN_MSG', 1}]}, {{enum, 'StatusCode'}, [{'OK', 1}, {'ERROR_PARAMA', 1000}, {'ERROR_SERVER', 1001}, {'ERROR_TOKEN_TIMEOUT', 1002}, {'ERROR_TOKEN_NOT_EXIST', 1003}, {'ERROR_TOKEN_NOT_TRUE', 1004}]}].
 
 
 get_msg_names() -> [].
@@ -244,7 +246,7 @@ get_group_names() -> [].
 get_msg_or_group_names() -> [].
 
 
-get_enum_names() -> ['ClientCmd'].
+get_enum_names() -> ['ClientCmd', 'StatusCode'].
 
 
 -spec fetch_msg_def(_) -> no_return().
@@ -262,19 +264,37 @@ find_msg_def(_) -> error.
 
 
 find_enum_def('ClientCmd') -> [{'LOGIN_MSG', 1}];
+find_enum_def('StatusCode') -> [{'OK', 1}, {'ERROR_PARAMA', 1000}, {'ERROR_SERVER', 1001}, {'ERROR_TOKEN_TIMEOUT', 1002}, {'ERROR_TOKEN_NOT_EXIST', 1003}, {'ERROR_TOKEN_NOT_TRUE', 1004}];
 find_enum_def(_) -> error.
 
 
-enum_symbol_by_value('ClientCmd', Value) -> enum_symbol_by_value_ClientCmd(Value).
+enum_symbol_by_value('ClientCmd', Value) -> enum_symbol_by_value_ClientCmd(Value);
+enum_symbol_by_value('StatusCode', Value) -> enum_symbol_by_value_StatusCode(Value).
 
 
-enum_value_by_symbol('ClientCmd', Sym) -> enum_value_by_symbol_ClientCmd(Sym).
+enum_value_by_symbol('ClientCmd', Sym) -> enum_value_by_symbol_ClientCmd(Sym);
+enum_value_by_symbol('StatusCode', Sym) -> enum_value_by_symbol_StatusCode(Sym).
 
 
 enum_symbol_by_value_ClientCmd(1) -> 'LOGIN_MSG'.
 
 
 enum_value_by_symbol_ClientCmd('LOGIN_MSG') -> 1.
+
+enum_symbol_by_value_StatusCode(1) -> 'OK';
+enum_symbol_by_value_StatusCode(1000) -> 'ERROR_PARAMA';
+enum_symbol_by_value_StatusCode(1001) -> 'ERROR_SERVER';
+enum_symbol_by_value_StatusCode(1002) -> 'ERROR_TOKEN_TIMEOUT';
+enum_symbol_by_value_StatusCode(1003) -> 'ERROR_TOKEN_NOT_EXIST';
+enum_symbol_by_value_StatusCode(1004) -> 'ERROR_TOKEN_NOT_TRUE'.
+
+
+enum_value_by_symbol_StatusCode('OK') -> 1;
+enum_value_by_symbol_StatusCode('ERROR_PARAMA') -> 1000;
+enum_value_by_symbol_StatusCode('ERROR_SERVER') -> 1001;
+enum_value_by_symbol_StatusCode('ERROR_TOKEN_TIMEOUT') -> 1002;
+enum_value_by_symbol_StatusCode('ERROR_TOKEN_NOT_EXIST') -> 1003;
+enum_value_by_symbol_StatusCode('ERROR_TOKEN_NOT_TRUE') -> 1004.
 
 
 get_service_names() -> [].
@@ -329,10 +349,12 @@ msg_name_to_fqbin(E) -> error({gpb_error, {badmsg, E}}).
 
 
 fqbin_to_enum_name(<<"ClientCmd">>) -> 'ClientCmd';
+fqbin_to_enum_name(<<"StatusCode">>) -> 'StatusCode';
 fqbin_to_enum_name(E) -> error({gpb_error, {badenum, E}}).
 
 
 enum_name_to_fqbin('ClientCmd') -> <<"ClientCmd">>;
+enum_name_to_fqbin('StatusCode') -> <<"StatusCode">>;
 enum_name_to_fqbin(E) -> error({gpb_error, {badenum, E}}).
 
 
@@ -379,7 +401,7 @@ get_rpc_containment("ClientCmdConstants") -> [];
 get_rpc_containment(P) -> error({gpb_error, {badproto, P}}).
 
 
-get_enum_containment("ClientCmdConstants") -> ['ClientCmd'];
+get_enum_containment("ClientCmdConstants") -> ['ClientCmd', 'StatusCode'];
 get_enum_containment(P) -> error({gpb_error, {badproto, P}}).
 
 
@@ -392,6 +414,7 @@ get_proto_by_service_name_as_fqbin(E) -> error({gpb_error, {badservice, E}}).
 
 
 get_proto_by_enum_name_as_fqbin(<<"ClientCmd">>) -> "ClientCmdConstants";
+get_proto_by_enum_name_as_fqbin(<<"StatusCode">>) -> "ClientCmdConstants";
 get_proto_by_enum_name_as_fqbin(E) -> error({gpb_error, {badenum, E}}).
 
 

@@ -1,9 +1,10 @@
-%%% @author 张超 <>
-%%% @copyright (C) 2015, 张超
-%%% @doc
-%%%
-%%% @end
-%%% Created : 28 Oct 2015 by 张超 <>
+% /*
+%  * @Author: mrchenxinbo 
+%  * @Date: 2023-12-11 16:12:21 
+%  * @Last Modified by:   mrchenxinbo 
+%  * @Last Modified time: 2023-12-11 16:12:21 
+%  */
+
 
 -ifndef(__LOGGER_HRL__).
 

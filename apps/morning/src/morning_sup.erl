@@ -26,7 +26,9 @@ start_link() ->
 %%                  type => worker(),       % optional
 %%                  modules => modules()}   % optional
 init([]) ->
-    ChildSpecs = [init_db_mysql_sup()],
+    ChildSpecs = [init_db_mysql_sup(),
+                  init_redis_pool_sup()   
+            ],
     % ChildSpecs= [],
     SupFlags = #{strategy => one_for_one,
                  intensity => length(ChildSpecs),
@@ -41,3 +43,11 @@ init_db_mysql_sup() ->
      infinity,
      supervisor,
      [morning_db_mysql_sup]}.
+
+init_redis_pool_sup() ->
+    {morning_redis_pool_sup,
+        {morning_redis_pool_sup, start_link, []},
+        permanent,
+        infinity,
+        supervisor,
+        [morning_redis_pool_sup]}.
