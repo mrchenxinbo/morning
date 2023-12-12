@@ -25,13 +25,15 @@ handle(#'LoginReq'{account = UserBinary, loginPass = PasswordBinary, loginType =
             {ok, #'LoginResp'{uid = Uid, token = RToken, expire_in = RExpire}};
         {error, ErrorStatus} ->
             {error, ErrorStatus}
-    end.
+    end;
+handle(Proto)->
+    {error, 'ERROR_UNKNOW_HANDLER'}.
 
 
 user_login_or_register(User, Password, Type)->
     case Type of
         ?TYPE_PASSWORD ->
-            case morning_db_user:user_info_password(util:to_list(User)) of
+            case morning_db_user:user_info_password(util:to_list(User), Type) of
                 {ok, {UidB, Password}}->
                     morning_db_user:user_info_update_by_uid(util:to_list(User)),
                     {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
@@ -46,7 +48,7 @@ user_login_or_register(User, Password, Type)->
         ?TYPE_WX->
             case login_request_other(?TYPE_WX, {util:to_list(Password)}) of
                 {ok, #{<<"session_key">> := Session_key, <<"unionid">> := Unionid}}->
-                    case morning_db_user:user_info_read_by_unionid(util:to_list(Unionid)) of
+                    case morning_db_user:user_info_read_by_unionid(util:to_list(Unionid), Type) of
                         {ok, #user_info{uid = UidB, nickname = Nickname, unionid = Unionid, channel = Channel}} ->
                             morning_db_user:user_info_update_by_uid(util:to_list(UidB)),
                             {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        

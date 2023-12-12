@@ -11,7 +11,7 @@
 
 -module(morning_db_user).
 
--export([user_info_read_by_uid/1, user_info_read_by_unionid/1, user_info_write/4, user_info_del_by_uid/1, user_info_update_by_uid/1,user_info_password/1]).
+-export([user_info_read_by_uid/1, user_info_read_by_unionid/2, user_info_write/4, user_info_del_by_uid/1, user_info_update_by_uid/1,user_info_password/2]).
 
 -include("morning.hrl").
 
@@ -28,11 +28,11 @@ user_info_read_by_uid(Uid)->
             {error, Error}
     end.
 
-user_info_read_by_unionid(Unionid)->
-    Sql = "SELECT uid, nickname, unionid, channel, create_ts, update_ts FROM morning_user_info WHERE unionid = "++Unionid, 
+user_info_read_by_unionid(Unionid, Channel)->
+    Sql = "SELECT uid, nickname, unionid, channel, create_ts, update_ts FROM morning_user_info WHERE unionid = '"++Unionid++"' and channel = "++util:to_list(Channel)++";", 
     case morning_db_mysql:querry(Sql) of
-        {ok, [[Uid, Nickname, Unionid, Channel, Create_ts, Update_ts]]}->
-            UserInfo = #user_info{uid = integer_to_binary(Uid), nickname = Nickname, unionid = Unionid, channel = Channel},
+        {ok, [[Uid, Nickname, UnionidB, Channel, Create_ts, Update_ts]]}->
+            UserInfo = #user_info{uid = integer_to_binary(Uid), nickname = Nickname, unionid = UnionidB, channel = Channel},
             {ok, UserInfo};
         {ok, [[]]}->
             {ok, []};
@@ -59,8 +59,8 @@ user_info_update_by_uid(Uid)->
     Sql = "UPDATE morning_user_info SET update_ts="++util:to_list(time_util:erlang_system_time(seconds))++" WHERE uid="++Uid++";",
     morning_db_mysql:querry(Sql).
 
-user_info_password(Uid)->
-    Sql = "SELECT uid, password FROM morning_user_info WHERE uid = "++Uid, 
+user_info_password(Unionid, Channel)->
+    Sql = "SELECT uid, password FROM morning_user_info WHERE unionid = '"++Unionid++"' and channel = "++util:to_list(Channel)++";", 
     case morning_db_mysql:querry(Sql) of
         {ok, [[UidB, P]]}->
             {ok, {integer_to_binary(UidB), P}};

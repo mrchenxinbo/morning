@@ -6,6 +6,7 @@ enum ClientCmd {
 
 }
 
+//1000-2000 服务端校验相关
 
 enum StatusCode {
     OK = 1; // 成功
@@ -14,5 +15,6 @@ enum StatusCode {
     ERROR_TOKEN_TIMEOUT = 1002; // token超时失效
     ERROR_TOKEN_NOT_EXIST = 1003; // token不存在
     ERROR_TOKEN_NOT_TRUE = 1004; // token不正确
+    ERROR_UNKNOW_HANDLER = 1005; // 未知的功能
 
 }
