@@ -36,11 +36,11 @@ user_login_or_register(User, Password, Type)->
             case morning_db_user:user_info_password(util:to_list(User), Type) of
                 {ok, {UidB, Password}}->
                     morning_db_user:user_info_update_by_uid(util:to_list(User)),
-                    {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
+                    {Token, Expire} = morning_token:get_token(UidB, Type),        
                     {ok, {UidB, Token, Expire}};
                 {error, not_register}->
                     {ok, UidB} = morning_db_user:user_info_write("", util:to_list(Password), "", util:to_list(Type)),
-                    {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
+                    {Token, Expire} = morning_token:get_token(UidB, Type),        
                     {ok, {UidB, Token, Expire}};
                 _->
                     {error, <<>>}
@@ -50,12 +50,12 @@ user_login_or_register(User, Password, Type)->
                 {ok, #{<<"session_key">> := Session_key, <<"unionid">> := Unionid}}->
                     case morning_db_user:user_info_read_by_unionid(util:to_list(Unionid), Type) of
                         {ok, #user_info{uid = UidB, nickname = Nickname, unionid = Unionid, channel = Channel}} ->
-                            morning_db_user:user_info_update_by_uid(util:to_list(UidB)),
-                            {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
+                            morning_db_user:user_info_update_by_uid(UidB),
+                            {Token, Expire} = morning_token:get_token(UidB, Type),        
                             {ok, {UidB, Token, Expire}};
                         {ok, []}->
                             {ok, UidB} = morning_db_user:user_info_write("", "", util:to_list(Unionid), util:to_list(Type)),
-                            {Token, Expire} = morning_token:get_token(util:to_list(UidB), Type),        
+                            {Token, Expire} = morning_token:get_token(UidB, Type),        
                             {ok, {UidB, Token, Expire}};
                         {error, _}->
                             {error, <<>>}     
