@@ -39,7 +39,7 @@ user_login_or_register(User, Password, Type)->
                     {Token, Expire} = morning_token:get_token(UidB, Type),        
                     {ok, {UidB, Token, Expire}};
                 {error, not_register}->
-                    {ok, UidB} = morning_db_user:user_info_write("", util:to_list(Password), "", util:to_list(Type)),
+                    {ok, UidB} = morning_db_user:user_info_write("", util:to_list(Password), util:to_list(User), util:to_list(Type)),
                     {Token, Expire} = morning_token:get_token(UidB, Type),        
                     {ok, {UidB, Token, Expire}};
                 _->
