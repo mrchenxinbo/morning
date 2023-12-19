@@ -1,0 +1,21 @@
+EUnitTestOpts = [],
+Macros = [],
+
+{ok, CwdBase} = file:get_cwd(),
+Cwd = CwdBase,
+
+Root= Cwd ++ "/_build/default/lib",
+
+
+[
+ {cover_enabled, true},
+ {eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
+ {erl_opts,
+   [
+    {i, filename:join(["include"])},
+    {i, filename:join([Root, "morning_proto", "include"])},
+    {i, filename:join([Root, "morning", "include"])}
+
+  ] ++ EUnitTestOpts ++ Macros++[nowarn_deprecated_type, debug_info]
+ }
+].
