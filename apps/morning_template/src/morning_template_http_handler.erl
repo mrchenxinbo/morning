@@ -55,11 +55,11 @@ handle(Req, State) ->
 handle_request(Req, <<"POST">>, [Table])->
 	{ok, Data, _} = cowboy_req:body(Req),
 	Maplist = jsx:decode(Data, [return_maps]),
-	TableAtom = binary_to_atom(Table),
+	TableAtom = list_to_atom(binary_to_list(Table)),
 	template_data_to_db(TableAtom, Maplist),
 	http_reply(Req);
 handle_request(Req, <<"GET">>, [Table])->
-	TableAtom = binary_to_atom(Table),
+	TableAtom = list_to_atom(binary_to_list(Table)),
 	Data = template_db_to_data(TableAtom),			
 	http_reply(Req, Data).
 
