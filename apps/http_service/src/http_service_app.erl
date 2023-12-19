@@ -16,6 +16,7 @@ start(_StartType, _StartArgs) ->
     Ret = http_service_sup:start_link(),
     http_service_dispatch:start(),
     http_service_handler:load(),
+    morning_template_http_handler:load(),
     Ret.
 
 stop(_State) ->

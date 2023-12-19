@@ -63,6 +63,11 @@ cmd_symbol_to_value(Symbol)->
 cmd_value_to_symbol(Value)->
     pb_ClientCmdConstants:enum_symbol_by_value_ClientCmd(Value).
 
+test(Json)->
+    Data = jsx:encode(Json),
+    {ok, File} = file:open("output.json", [write]),
+    io:format(File, "~s", [Data]),
+    file:close(File).
     
 
 

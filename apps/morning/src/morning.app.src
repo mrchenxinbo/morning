@@ -9,13 +9,14 @@
     sockjs,
     jsx,
     eredis,
-    mysql,
+    emysql,
     lager,
     gpb,
     http_service,
     cuesport,
     ibrowse,
-    morning_proto
+    morning_proto,
+    morning_template
    ]},
   {env,[]},
   {modules, []},

@@ -14,13 +14,13 @@
 -export([user_info_read_by_uid/1, user_info_read_by_unionid/2, user_info_write/4, user_info_del_by_uid/1, user_info_update_by_uid/1,user_info_password/2]).
 
 -include("morning.hrl").
+-include("model_def.hrl").
 
 
 user_info_read_by_uid(Uid)->
-    Sql = "SELECT uid, nickname, unionid, channel, create_ts, update_ts FROM morning_user_info WHERE uid = "++Uid, 
-    case morning_db_mysql:querry(Sql) of
-        {ok, [[Uid, Nickname, Unionid, Channel, Create_ts, Update_ts]]}->
-            UserInfo = #user_info{uid = integer_to_binary(Uid), nickname = Nickname, unionid = Unionid, channel = Channel},
+    case model_morning_user_info:select([uid, nickname, unionid, channel, create_ts, update_ts], [{uid, '=', Uid}]) of
+        {ok, [[UidDb, Nickname, Unionid, Channel, Create_ts, Update_ts]]}->
+            UserInfo = #user_info{uid = integer_to_binary(UidDb), nickname = Nickname, unionid = Unionid, channel = Channel},
             {ok, UserInfo};
         {ok, [[]]}->
             {ok, []};
@@ -29,8 +29,7 @@ user_info_read_by_uid(Uid)->
     end.
 
 user_info_read_by_unionid(Unionid, Channel)->
-    Sql = "SELECT uid, nickname, unionid, channel, create_ts, update_ts FROM morning_user_info WHERE unionid = '"++Unionid++"' and channel = "++util:to_list(Channel)++";", 
-    case morning_db_mysql:querry(Sql) of
+    case model_morning_user_info:select([uid, nickname, unionid, channel, create_ts, update_ts], [{unionid, '=', Unionid}, {channel, '=', Channel}]) of
         {ok, [[Uid, Nickname, UnionidB, Channel, Create_ts, Update_ts]]}->
             UserInfo = #user_info{uid = integer_to_binary(Uid), nickname = Nickname, unionid = UnionidB, channel = Channel},
             {ok, UserInfo};
@@ -41,10 +40,9 @@ user_info_read_by_unionid(Unionid, Channel)->
     end.
 
 user_info_write(Nickname, Password, Unionid, Channel)->
-    Sql =
-    "INSERT INTO morning_user_info (nickname, password, unionid, channel, create_ts, update_ts) VALUES('"++Nickname++"','"++Password++"','"++Unionid++"',"++Channel++","++util:to_list(time_util:erlang_system_time(seconds))++","++ util:to_list(time_util:erlang_system_time(seconds))++"); SELECT LAST_INSERT_ID();",
-    case morning_db_mysql:querry(Sql) of
-        {ok, [[Uid]]}->
+    Record = #morning_user_info{nickname = Nickname, unionid = Unionid, password = Password, channel = Channel, create_ts = time_util:erlang_system_time(seconds), update_ts = time_util:erlang_system_time(seconds)},
+    case model_morning_user_info:insert_auto(Record) of
+        {ok, _, Uid}->
             {ok, integer_to_binary(Uid)};
         _->
             {error, <<>>}   
@@ -52,16 +50,13 @@ user_info_write(Nickname, Password, Unionid, Channel)->
 
 
 user_info_del_by_uid(Uid)->
-    Sql = "DELETE FROM morning_user_info WHERE uid="++Uid++";",
-    morning_db_mysql:querry(Sql).
+    model_morning_user_info:delete([{uid, '=', Uid}]).
 
 user_info_update_by_uid(Uid)->
-    Sql = "UPDATE morning_user_info SET update_ts="++util:to_list(time_util:erlang_system_time(seconds))++" WHERE uid="++Uid++";",
-    morning_db_mysql:querry(Sql).
+    model_morning_user_info:update_fields([{update_ts, time_util:erlang_system_time(seconds)}], [{uid, '=', Uid}]).
 
 user_info_password(Unionid, Channel)->
-    Sql = "SELECT uid, password FROM morning_user_info WHERE unionid = '"++Unionid++"' and channel = "++util:to_list(Channel)++";", 
-    case morning_db_mysql:querry(Sql) of
+    case model_morning_user_info:select([uid, password], [{unionid, '=', Unionid}, {channel, '=', Channel}]) of
         {ok, [[UidB, P]]}->
             {ok, {integer_to_binary(UidB), P}};
         {ok, []}->

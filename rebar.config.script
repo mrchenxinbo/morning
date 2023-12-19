@@ -20,7 +20,9 @@ Deps = [{sockjs, {git, "git@github.com:mrchenxinbo/sockjs-erlang.git",{ref,
 Includes =
 [
     {i, filename:join(["include"])},
-    {i, filename:join([Root, "morning_proto", "include"])}
+    {i, filename:join([Root, "morning_proto", "include"])},
+    {i, filename:join([Root, "morning_template", "include"])}
+
   ],
 
 Config = 

@@ -1,9 +1,9 @@
 %%%-------------------------------------------------------------------
-%% @doc morning top level supervisor.
+%% @doc morning_template top level supervisor.
 %% @end
 %%%-------------------------------------------------------------------
 
--module(morning_sup).
+-module(morning_template_sup).
 
 -behaviour(supervisor).
 
@@ -26,28 +26,10 @@ start_link() ->
 %%                  type => worker(),       % optional
 %%                  modules => modules()}   % optional
 init([]) ->
-    ChildSpecs = [
-                  init_redis_pool_sup()   
-            ],
-    % ChildSpecs= [],
-    SupFlags = #{strategy => one_for_one,
-                 intensity => length(ChildSpecs),
+    SupFlags = #{strategy => one_for_all,
+                 intensity => 0,
                  period => 1},
+    ChildSpecs = [],
     {ok, {SupFlags, ChildSpecs}}.
 
 %% internal functions
-init_db_mysql_sup() ->
-    {morning_db_mysql_sup,
-     {morning_db_mysql_sup, start_link, []},
-     permanent,
-     infinity,
-     supervisor,
-     [morning_db_mysql_sup]}.
-
-init_redis_pool_sup() ->
-    {morning_redis_pool_sup,
-        {morning_redis_pool_sup, start_link, []},
-        permanent,
-        infinity,
-        supervisor,
-        [morning_redis_pool_sup]}.

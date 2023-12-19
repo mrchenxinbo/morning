@@ -11,7 +11,8 @@
 
 -module(morning_db_mysql).
 
--export([config_init/0, get_worker/0,querry/1]).
+-export([config_init/0, get_worker/0,query/1]).
+-include("logger.hrl").
 
 config_init() ->
     {ok, MysqlParmas} = application:get_env(morning, mysql),
@@ -38,14 +39,20 @@ config_init_spec(PoolSize, Config) ->
 get_worker()->
     morning_db_mysql_sup:get_random_pid(<<"db_mysql">>).   
 
-querry(Sql)->
+query(Sql)->
     case mysql:query(get_worker(), list_to_binary(Sql)) of
         ok->
             {ok, []};
         {ok, _Query, Result}->
             {ok, Result};    
         {error, _, _}->
+            {error, db_error};
+        {error, ERROR}->
+            ?ERROR_MSG("db sql querry error ==:~p~n", [ERROR]),
             {error, db_error}
-
     end.
+
+
+
+
 
