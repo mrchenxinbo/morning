@@ -47,7 +47,7 @@ handle(Req, State) ->
             Type:Error ->
                 ?ERROR_MSG("handle http request Type=~p, Error=~p, S=~p",
                             [Type, Error, erlang:get_stacktrace()]),
-                Encodedata = morning_msg:packet_http_data('ERROR_SERVER', <<>>),
+                            Encodedata = morning_msg:packet_http_data('ERROR_SERVER', <<>>),
                 http_reply(Req, Encodedata)
         end,
    {ok, Req2, State}.
@@ -83,8 +83,6 @@ handle_request(Req, <<"POST">>, [<<"users">>, UserId, CMD] = Path)->
          {ok, {_, HttpToken}, _}->
             case morning_token:check_token(UserId, HttpToken) of
                 true->
-
-
                     {ok, Data, _} = cowboy_req:body(Req),
                     case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
                         {ok, R}->

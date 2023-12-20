@@ -43,7 +43,7 @@ user_login_or_register(User, Password, Type)->
                     {Token, Expire} = morning_token:get_token(UidB, Type),        
                     {ok, {UidB, Token, Expire}};
                 _->
-                    {error, 'ERROR_PARAMA'}
+                    {error, 'ERROR_SERVER'}
             end;
         ?TYPE_WX->
             case login_request_other(?TYPE_WX, {util:to_list(Password)}) of
@@ -58,13 +58,13 @@ user_login_or_register(User, Password, Type)->
                             {Token, Expire} = morning_token:get_token(UidB, Type),        
                             {ok, {UidB, Token, Expire}};
                         {error, _}->
-                            {error, 'ERROR_PARAMA'}     
+                            {error, 'ERROR_SERVER'}     
                     end;
                 _->
-                    {error, 'ERROR_PARAMA'} 
+                    {error, 'ERROR_SERVER'} 
             end;
         ?TYPE_DY->
-            {error, <<>>};
+            {error, 'ERROR_UNKNOW_HANDLER'};
         _->
             {error, 'ERROR_PARAMA'}
     end.

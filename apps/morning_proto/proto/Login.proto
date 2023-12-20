@@ -42,7 +42,7 @@ message Morning_s2c
 message LoginReq{
     required string account = 1; //账号
     required string loginPass = 2; //登录密码
-    required int32  loginType = 3; // 登录类型 1微信 2抖音 3账号密码
+    required int32  loginType = 3; // 登录类型 1抖音 2微信 3账号密码
     optional string version = 4; //客户端版本号  暂时不用
     optional string jsVersion = 5; //js版本号 暂时不用
     optional string channel = 6;    //登陆渠道
