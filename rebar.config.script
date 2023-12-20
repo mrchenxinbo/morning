@@ -14,7 +14,9 @@ Deps = [{sockjs, {git, "git@github.com:mrchenxinbo/sockjs-erlang.git",{ref,
         {lager, {git, "git@github.com:erlang-lager/lager.git", {ref, "459a3b2cdd9eadd29e5a7ce5c43932f5ccd6eb88"}}},
         {gpb, {git, "git@github.com:tomas-abrahamsson/gpb.git", {ref, "edda1006d863a09509673778c455d33d88e6edbc"}}},
         {cuesport, {git, "git@github.com:mrchenxinbo/cuesport.git", {ref, "3b16d99d8bc41774dbc4dabad8054b4423dec5a6"}}},
-        {ranch,{git,"git@github.com:ninenines/ranch.git", {ref,"adf1822defc2b7cfdc7aca112adabfa1d614043c"}}}
+        {ranch,{git,"git@github.com:ninenines/ranch.git", {ref,"adf1822defc2b7cfdc7aca112adabfa1d614043c"}}},
+        {cowboy,{git,"git@github.com:extend/cowboy.git", {ref,"b8e4115eb13488c517d8d8ef33c47d0eaa7838c6"}}}
+
         ],
 
 Includes =
