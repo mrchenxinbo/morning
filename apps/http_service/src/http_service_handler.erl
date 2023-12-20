@@ -47,8 +47,8 @@ handle(Req, State) ->
             Type:Error ->
                 ?ERROR_MSG("handle http request Type=~p, Error=~p, S=~p",
                             [Type, Error, erlang:get_stacktrace()]),
-                Decodedata1 = morning_msg:packet_http_data('ERROR_SERVER', <<>>),
-                http_reply(Req, Decodedata1)
+                Encodedata = morning_msg:packet_http_data('ERROR_SERVER', <<>>),
+                http_reply(Req, Encodedata)
         end,
    {ok, Req2, State}.
 
@@ -64,14 +64,18 @@ handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
         _->
             Data
     end,
-    case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), InitData)) of
+    ?INFO_MSG("handle login InitDataInitData=======~p~n", [InitData]),
+    DecodeData = morning_msg:decode_msg(binary_to_integer(CMD), InitData),
+    case morning_api_handler:handle(DecodeData) of
         {ok, R}->
-            Decodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
-            Decodedata1 = morning_msg:packet_http_data('OK', Decodedata),
-            http_reply(Req, Decodedata1);
+            ?INFO_MSG("handle login sucess=======~p~n", [R]),
+            Encodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
+            Encodedata1 = morning_msg:packet_http_data('OK', Encodedata),
+            http_reply(Req, Encodedata1);
         {error, ErrStatus}->
-            Decodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
-            http_reply(Req, Decodedata1)
+            ?ERROR_MSG("handle login error=======error_code: ~p re_data:~p~n", [ErrStatus, DecodeData]),
+            Encodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
+            http_reply(Req, Encodedata1)
     end;
     
 handle_request(Req, <<"POST">>, [<<"users">>, UserId, CMD] = Path)->
@@ -84,25 +88,25 @@ handle_request(Req, <<"POST">>, [<<"users">>, UserId, CMD] = Path)->
                     {ok, Data, _} = cowboy_req:body(Req),
                     case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
                         {ok, R}->
-                            Decodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
-                            Decodedata1 = morning_msg:packet_http_data('OK', Decodedata),
-                            http_reply(Req, Decodedata1);
+                            Encodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
+                            Encodedata1 = morning_msg:packet_http_data('OK', Encodedata),
+                            http_reply(Req, Encodedata1);
                         {error, ErrStatus}->
-                            Decodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
-                            http_reply(Req, Decodedata1)
+                            Encodedata = morning_msg:packet_http_data(ErrStatus, <<>>),
+                            http_reply(Req, Encodedata)
                     end;
                 {error, ErrStatus}->
-                    Decodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
-                    http_reply(Req, Decodedata1)
+                    Encodedata = morning_msg:packet_http_data(ErrStatus, <<>>),
+                    http_reply(Req, Encodedata)
             end;
         _->
-            Decodedata1 = morning_msg:packet_http_data('ERROR_PARAMA', <<>>),
-            http_reply(Req, Decodedata1)
+            Encodedata = morning_msg:packet_http_data('ERROR_PARAMA', <<>>),
+            http_reply(Req, Encodedata)
     end;
 
 handle_request(Req, Method, Path)->
-    Decodedata1 = morning_msg:packet_http_data('ERROR_PARAMA', <<>>),
-    http_reply(Req, Decodedata1).
+    Encodedata = morning_msg:packet_http_data('ERROR_PARAMA', <<>>),
+    http_reply(Req, Encodedata).
 
 
 
