@@ -52,6 +52,12 @@ handle(Req, State) ->
    {ok, Req2, State}.
 
 
+handle_request(Req, <<"GET">>, [<<"all">>])->
+	Data =
+	lists:map(fun(Table)->
+				{Table, template_db_to_data(Table)}
+			end, template_tables()),
+	http_reply(Req, Data);
 handle_request(Req, <<"POST">>, [Table])->
 	{ok, Data, _} = cowboy_req:body(Req),
 	Maplist = jsx:decode(Data, [return_maps]),
@@ -62,8 +68,6 @@ handle_request(Req, <<"GET">>, [Table])->
 	TableAtom = list_to_atom(binary_to_list(Table)),
 	Data = template_db_to_data(TableAtom),			
 	http_reply(Req, Data).
-
-
 
 
 
@@ -118,7 +122,7 @@ template_data_to_db(TbName, _Other)->
 	nothing.
 
 template_db_to_data(TbName)->
-	case mysql_client:select_with_fields(TbName, " WHERE `id` > 0;") of
+	case mysql_client:select_with_fields(TbName, " LIMIT 10000;") of
 		{ok, Fields, Values}->
 			Data =
 			lists:map(fun(Value)->
@@ -161,3 +165,7 @@ http_reply(Req, Data)->
 	[{<<"Content-Type">>, <<"application/json">>}],
 	jsx:encode([{result, <<"ok">>}, {data, Data}]),
 	Req).
+
+
+template_tables()->
+	[stage_level_config, morning_user_info].

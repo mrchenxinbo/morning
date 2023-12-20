@@ -55,7 +55,16 @@ handle(Req, State) ->
 
 handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
     {ok, Data, _} = cowboy_req:body(Req),
-    case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
+    InitData = 
+    case cowboy_req:parse_header(<<"content-type">>, Req) of
+        {ok, {<<"application">>,<<"x-protobuf">>,[]},  _Req}->
+            Data;
+        {ok, {<<"application">>,<<"x-protobuf-wx">>,[]},  _Req}-> 
+            parse_wx(Data);
+        _->
+            Data
+    end,
+    case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), InitData)) of
         {ok, R}->
             Decodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
             Decodedata1 = morning_msg:packet_http_data('OK', Decodedata),
@@ -117,3 +126,12 @@ http_reply(Req, Data)->
 
 check_token(User, Token)->
     true.
+
+parse_wx(Data)->
+    MapData = jsx:decode(Data, [return_maps]),
+    Keys = maps:keys(MapData),
+    IntegerKeys = lists:sort([binary_to_integer(K)||K<-Keys]),
+    SortedKeys = [integer_to_binary(IntK)||IntK<-IntegerKeys],
+    Values = [maps:get(Key, MapData) || Key <- SortedKeys],
+    Bytes = [Value || Value <- Values],
+    list_to_binary(Bytes).
