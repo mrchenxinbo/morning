@@ -46,8 +46,7 @@ handle(Req, State) ->
             Type:Error ->
                 ?ERROR_MSG("handle http request Type=~p, Error=~p, S=~p",
                             [Type, Error, erlang:get_stacktrace()]),
-                Decodedata1 = morning_msg:packet_http_data('ERROR_SERVER', <<>>),
-                http_reply(Req, Decodedata1)
+				http_reply_error(Req, 403, <<"server exception">>)
         end,
    {ok, Req2, State}.
 
@@ -58,17 +57,30 @@ handle_request(Req, <<"GET">>, [<<"all">>])->
 				{Table, template_db_to_data(Table)}
 			end, template_tables()),
 	http_reply(Req, Data);
+handle_request(Req, <<"GET">>, [Table])->
+	TableAtom = list_to_atom(binary_to_list(Table)),
+	Data = template_db_to_data(TableAtom),			
+	http_reply(Req, Data);
+handle_request(Req, <<"POST">>, [<<"tables">>])->
+	{TabStrB, _} = cowboy_req:qs_val(<<"str">>, Req),
+	TbStrList  = string:split(binary_to_list(TabStrB), ",", all), 
+	TbAtomList = [list_to_atom(T)||T<-TbStrList], 
+	Data =
+	lists:map(fun(Table)->
+				{Table, template_db_to_data(Table)}
+			end, TbAtomList),
+	http_reply(Req, Data);
+
 handle_request(Req, <<"POST">>, [Table])->
 	{ok, Data, _} = cowboy_req:body(Req),
 	Maplist = jsx:decode(Data, [return_maps]),
 	TableAtom = list_to_atom(binary_to_list(Table)),
 	template_data_to_db(TableAtom, Maplist),
 	http_reply(Req);
-handle_request(Req, <<"GET">>, [Table])->
-	TableAtom = list_to_atom(binary_to_list(Table)),
-	Data = template_db_to_data(TableAtom),			
-	http_reply(Req, Data).
 
+handle_request(Req, _Method, _Path)->
+	?ERROR_MSG("handle http request not match ==Method:~p  Path:~p~n",[_Method, _Path]),
+	http_reply_error(Req, 403, <<"error parmas">>).
 
 
 
