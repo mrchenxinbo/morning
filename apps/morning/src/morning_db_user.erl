@@ -33,7 +33,7 @@ user_info_read_by_unionid(Unionid, Channel)->
         {ok, [[Uid, Nickname, UnionidB, Channel, Create_ts, Update_ts]]}->
             UserInfo = #user_info{uid = integer_to_binary(Uid), nickname = Nickname, unionid = UnionidB, channel = Channel},
             {ok, UserInfo};
-        {ok, [[]]}->
+        {ok, []}->
             {ok, []};
         {error, Error}->
             {error, Error}
