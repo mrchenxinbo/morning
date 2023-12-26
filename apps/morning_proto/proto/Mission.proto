@@ -1,0 +1,15 @@
+option java_outer_classname = "MissionProto";
+package proto.client;
+syntax = "proto2";
+
+// 通关数据 
+message MissionReq {
+    optional int32 mission = 1; // 关卡id  当前打到第几关
+    optional int32 score = 2;   //当前分数 
+}
+message MissionResp 
+{
+    optional int32 mission = 1;
+    optional int32 score = 2;   // 当前分数
+    optional int32 max_score = 3; // 最大分数
+}

@@ -30,13 +30,19 @@ encode_msg(CmdSymbol, Data)->
 
 %%============decode info  start=====================    
 decode('LOGIN_MSG', Binary)->
-    decode_do(pb_Login, 'LoginReq', Binary).
+    decode_do(pb_Login, 'LoginReq', Binary);
+
+decode('PASS_MISSION', Binary)->
+    decode_do(pb_Mission, 'MissionReq', Binary).
 
 
 
 %%============encode info  start=====================
 encode('LOGIN_MSG', Data)->
-    encode_do(pb_Login, 'LoginResp', Data).
+    encode_do(pb_Login, 'LoginResp', Data);
+
+encode('PASS_MISSION', Data)->
+    encode_do(pb_Mission, 'MissionResp', Data).
 
 
 

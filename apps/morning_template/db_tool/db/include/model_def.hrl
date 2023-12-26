@@ -18,3 +18,28 @@
 			missionid=0					%% 任务id
 		}). %%@proto,set,key:[id]
 
+%% 关卡信息表
+-record(role_stage_info, {
+			uid=0,						%% uid
+			mission=0,					%% 当前关卡
+			score=0,					%% 分数
+			max_score=0,				%% 最大分数
+			update_ts=0					%% 更新时间
+		}). %%@disc,set,key:[uid]
+
+%% 物品表
+-record(item_config, {
+			id=0,						%% id
+			type=0,						%% 类型
+			icon=[]						%% icon
+		}). %%@proto,set,key:[id]
+
+%% 背包信息表
+-record(role_inventory_info, {
+			id=null,					%% id
+			uid=0,						%% uid
+			proto_id=0,					%% 当前关卡
+			count=0,					%% 分数
+			update_ts=0					%% 更新时间
+		}). %%@disc,set,key:[id],index:[uid]
+

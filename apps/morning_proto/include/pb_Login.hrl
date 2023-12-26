@@ -26,7 +26,8 @@
         {uid                    :: unicode:chardata() | undefined, % = 1, required
          token                  :: unicode:chardata() | undefined, % = 2, required
          expire_in              :: non_neg_integer() | undefined, % = 3, optional, 32 bits
-         mission                :: integer() | undefined % = 4, optional, 32 bits
+         mission                :: integer() | undefined, % = 4, optional, 32 bits
+         max_score              :: integer() | undefined % = 5, optional, 32 bits
         }).
 -endif.
 

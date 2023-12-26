@@ -103,14 +103,17 @@ encode_msg_LoginReq(#'LoginReq'{account = F1, loginPass = F2, loginType = F3, ve
 encode_msg_LoginResp(Msg, TrUserData) -> encode_msg_LoginResp(Msg, <<>>, TrUserData).
 
 
-encode_msg_LoginResp(#'LoginResp'{uid = F1, token = F2, expire_in = F3, mission = F4}, Bin, TrUserData) ->
+encode_msg_LoginResp(#'LoginResp'{uid = F1, token = F2, expire_in = F3, mission = F4, max_score = F5}, Bin, TrUserData) ->
     B1 = begin TrF1 = id(F1, TrUserData), e_type_string(TrF1, <<Bin/binary, 10>>, TrUserData) end,
     B2 = begin TrF2 = id(F2, TrUserData), e_type_string(TrF2, <<B1/binary, 18>>, TrUserData) end,
     B3 = if F3 == undefined -> B2;
             true -> begin TrF3 = id(F3, TrUserData), e_varint(TrF3, <<B2/binary, 24>>, TrUserData) end
          end,
-    if F4 == undefined -> B3;
-       true -> begin TrF4 = id(F4, TrUserData), e_type_int32(TrF4, <<B3/binary, 32>>, TrUserData) end
+    B4 = if F4 == undefined -> B3;
+            true -> begin TrF4 = id(F4, TrUserData), e_type_int32(TrF4, <<B3/binary, 32>>, TrUserData) end
+         end,
+    if F5 == undefined -> B4;
+       true -> begin TrF5 = id(F5, TrUserData), e_type_int32(TrF5, <<B4/binary, 40>>, TrUserData) end
     end.
 
 -compile({nowarn_unused_function,e_type_sint/3}).
@@ -320,70 +323,77 @@ skip_32_LoginReq(<<_:32, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5,
 
 skip_64_LoginReq(<<_:64, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, F@_6, TrUserData) -> dfp_read_field_def_LoginReq(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, F@_6, TrUserData).
 
-decode_msg_LoginResp(Bin, TrUserData) -> dfp_read_field_def_LoginResp(Bin, 0, 0, 0, id(undefined, TrUserData), id(undefined, TrUserData), id(undefined, TrUserData), id(undefined, TrUserData), TrUserData).
+decode_msg_LoginResp(Bin, TrUserData) -> dfp_read_field_def_LoginResp(Bin, 0, 0, 0, id(undefined, TrUserData), id(undefined, TrUserData), id(undefined, TrUserData), id(undefined, TrUserData), id(undefined, TrUserData), TrUserData).
 
-dfp_read_field_def_LoginResp(<<10, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> d_field_LoginResp_uid(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-dfp_read_field_def_LoginResp(<<18, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> d_field_LoginResp_token(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-dfp_read_field_def_LoginResp(<<24, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> d_field_LoginResp_expire_in(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-dfp_read_field_def_LoginResp(<<32, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> d_field_LoginResp_mission(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-dfp_read_field_def_LoginResp(<<>>, 0, 0, _, F@_1, F@_2, F@_3, F@_4, _) -> #'LoginResp'{uid = F@_1, token = F@_2, expire_in = F@_3, mission = F@_4};
-dfp_read_field_def_LoginResp(Other, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> dg_read_field_def_LoginResp(Other, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData).
+dfp_read_field_def_LoginResp(<<10, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> d_field_LoginResp_uid(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+dfp_read_field_def_LoginResp(<<18, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> d_field_LoginResp_token(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+dfp_read_field_def_LoginResp(<<24, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> d_field_LoginResp_expire_in(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+dfp_read_field_def_LoginResp(<<32, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> d_field_LoginResp_mission(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+dfp_read_field_def_LoginResp(<<40, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> d_field_LoginResp_max_score(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+dfp_read_field_def_LoginResp(<<>>, 0, 0, _, F@_1, F@_2, F@_3, F@_4, F@_5, _) -> #'LoginResp'{uid = F@_1, token = F@_2, expire_in = F@_3, mission = F@_4, max_score = F@_5};
+dfp_read_field_def_LoginResp(Other, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> dg_read_field_def_LoginResp(Other, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData).
 
-dg_read_field_def_LoginResp(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData) when N < 32 - 7 -> dg_read_field_def_LoginResp(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-dg_read_field_def_LoginResp(<<0:1, X:7, Rest/binary>>, N, Acc, _, F@_1, F@_2, F@_3, F@_4, TrUserData) ->
+dg_read_field_def_LoginResp(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) when N < 32 - 7 -> dg_read_field_def_LoginResp(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+dg_read_field_def_LoginResp(<<0:1, X:7, Rest/binary>>, N, Acc, _, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) ->
     Key = X bsl N + Acc,
     case Key of
-        10 -> d_field_LoginResp_uid(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, TrUserData);
-        18 -> d_field_LoginResp_token(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, TrUserData);
-        24 -> d_field_LoginResp_expire_in(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, TrUserData);
-        32 -> d_field_LoginResp_mission(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, TrUserData);
+        10 -> d_field_LoginResp_uid(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+        18 -> d_field_LoginResp_token(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+        24 -> d_field_LoginResp_expire_in(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+        32 -> d_field_LoginResp_mission(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+        40 -> d_field_LoginResp_max_score(Rest, 0, 0, 0, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
         _ ->
             case Key band 7 of
-                0 -> skip_varint_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, TrUserData);
-                1 -> skip_64_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, TrUserData);
-                2 -> skip_length_delimited_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, TrUserData);
-                3 -> skip_group_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, TrUserData);
-                5 -> skip_32_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, TrUserData)
+                0 -> skip_varint_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+                1 -> skip_64_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+                2 -> skip_length_delimited_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+                3 -> skip_group_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+                5 -> skip_32_LoginResp(Rest, 0, 0, Key bsr 3, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData)
             end
     end;
-dg_read_field_def_LoginResp(<<>>, 0, 0, _, F@_1, F@_2, F@_3, F@_4, _) -> #'LoginResp'{uid = F@_1, token = F@_2, expire_in = F@_3, mission = F@_4}.
+dg_read_field_def_LoginResp(<<>>, 0, 0, _, F@_1, F@_2, F@_3, F@_4, F@_5, _) -> #'LoginResp'{uid = F@_1, token = F@_2, expire_in = F@_3, mission = F@_4, max_score = F@_5}.
 
-d_field_LoginResp_uid(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData) when N < 57 -> d_field_LoginResp_uid(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-d_field_LoginResp_uid(<<0:1, X:7, Rest/binary>>, N, Acc, F, _, F@_2, F@_3, F@_4, TrUserData) ->
+d_field_LoginResp_uid(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) when N < 57 -> d_field_LoginResp_uid(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+d_field_LoginResp_uid(<<0:1, X:7, Rest/binary>>, N, Acc, F, _, F@_2, F@_3, F@_4, F@_5, TrUserData) ->
     {NewFValue, RestF} = begin Len = X bsl N + Acc, <<Bytes:Len/binary, Rest2/binary>> = Rest, Bytes2 = binary:copy(Bytes), {id(Bytes2, TrUserData), Rest2} end,
-    dfp_read_field_def_LoginResp(RestF, 0, 0, F, NewFValue, F@_2, F@_3, F@_4, TrUserData).
+    dfp_read_field_def_LoginResp(RestF, 0, 0, F, NewFValue, F@_2, F@_3, F@_4, F@_5, TrUserData).
 
-d_field_LoginResp_token(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData) when N < 57 -> d_field_LoginResp_token(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-d_field_LoginResp_token(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, _, F@_3, F@_4, TrUserData) ->
+d_field_LoginResp_token(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) when N < 57 -> d_field_LoginResp_token(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+d_field_LoginResp_token(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, _, F@_3, F@_4, F@_5, TrUserData) ->
     {NewFValue, RestF} = begin Len = X bsl N + Acc, <<Bytes:Len/binary, Rest2/binary>> = Rest, Bytes2 = binary:copy(Bytes), {id(Bytes2, TrUserData), Rest2} end,
-    dfp_read_field_def_LoginResp(RestF, 0, 0, F, F@_1, NewFValue, F@_3, F@_4, TrUserData).
+    dfp_read_field_def_LoginResp(RestF, 0, 0, F, F@_1, NewFValue, F@_3, F@_4, F@_5, TrUserData).
 
-d_field_LoginResp_expire_in(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData) when N < 57 -> d_field_LoginResp_expire_in(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-d_field_LoginResp_expire_in(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, _, F@_4, TrUserData) ->
+d_field_LoginResp_expire_in(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) when N < 57 -> d_field_LoginResp_expire_in(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+d_field_LoginResp_expire_in(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, _, F@_4, F@_5, TrUserData) ->
     {NewFValue, RestF} = {id((X bsl N + Acc) band 4294967295, TrUserData), Rest},
-    dfp_read_field_def_LoginResp(RestF, 0, 0, F, F@_1, F@_2, NewFValue, F@_4, TrUserData).
+    dfp_read_field_def_LoginResp(RestF, 0, 0, F, F@_1, F@_2, NewFValue, F@_4, F@_5, TrUserData).
 
-d_field_LoginResp_mission(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData) when N < 57 -> d_field_LoginResp_mission(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-d_field_LoginResp_mission(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, _, TrUserData) ->
+d_field_LoginResp_mission(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) when N < 57 -> d_field_LoginResp_mission(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+d_field_LoginResp_mission(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, _, F@_5, TrUserData) ->
     {NewFValue, RestF} = {begin <<Res:32/signed-native>> = <<(X bsl N + Acc):32/unsigned-native>>, id(Res, TrUserData) end, Rest},
-    dfp_read_field_def_LoginResp(RestF, 0, 0, F, F@_1, F@_2, F@_3, NewFValue, TrUserData).
+    dfp_read_field_def_LoginResp(RestF, 0, 0, F, F@_1, F@_2, F@_3, NewFValue, F@_5, TrUserData).
 
-skip_varint_LoginResp(<<1:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> skip_varint_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-skip_varint_LoginResp(<<0:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> dfp_read_field_def_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData).
+d_field_LoginResp_max_score(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) when N < 57 -> d_field_LoginResp_max_score(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+d_field_LoginResp_max_score(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, _, TrUserData) ->
+    {NewFValue, RestF} = {begin <<Res:32/signed-native>> = <<(X bsl N + Acc):32/unsigned-native>>, id(Res, TrUserData) end, Rest},
+    dfp_read_field_def_LoginResp(RestF, 0, 0, F, F@_1, F@_2, F@_3, F@_4, NewFValue, TrUserData).
 
-skip_length_delimited_LoginResp(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData) when N < 57 -> skip_length_delimited_LoginResp(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData);
-skip_length_delimited_LoginResp(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, TrUserData) ->
+skip_varint_LoginResp(<<1:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> skip_varint_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+skip_varint_LoginResp(<<0:1, _:7, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> dfp_read_field_def_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData).
+
+skip_length_delimited_LoginResp(<<1:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) when N < 57 -> skip_length_delimited_LoginResp(Rest, N + 7, X bsl N + Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData);
+skip_length_delimited_LoginResp(<<0:1, X:7, Rest/binary>>, N, Acc, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) ->
     Length = X bsl N + Acc,
     <<_:Length/binary, Rest2/binary>> = Rest,
-    dfp_read_field_def_LoginResp(Rest2, 0, 0, F, F@_1, F@_2, F@_3, F@_4, TrUserData).
+    dfp_read_field_def_LoginResp(Rest2, 0, 0, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData).
 
-skip_group_LoginResp(Bin, _, Z2, FNum, F@_1, F@_2, F@_3, F@_4, TrUserData) ->
+skip_group_LoginResp(Bin, _, Z2, FNum, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) ->
     {_, Rest} = read_group(Bin, FNum),
-    dfp_read_field_def_LoginResp(Rest, 0, Z2, FNum, F@_1, F@_2, F@_3, F@_4, TrUserData).
+    dfp_read_field_def_LoginResp(Rest, 0, Z2, FNum, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData).
 
-skip_32_LoginResp(<<_:32, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> dfp_read_field_def_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData).
+skip_32_LoginResp(<<_:32, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> dfp_read_field_def_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData).
 
-skip_64_LoginResp(<<_:64, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData) -> dfp_read_field_def_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, TrUserData).
+skip_64_LoginResp(<<_:64, Rest/binary>>, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData) -> dfp_read_field_def_LoginResp(Rest, Z1, Z2, F, F@_1, F@_2, F@_3, F@_4, F@_5, TrUserData).
 
 read_group(Bin, FieldNum) ->
     {NumBytes, EndTagLen} = read_gr_b(Bin, 0, 0, 0, 0, FieldNum),
@@ -473,7 +483,7 @@ merge_msg_LoginReq(#'LoginReq'{version = PFversion, jsVersion = PFjsVersion, cha
                     end}.
 
 -compile({nowarn_unused_function,merge_msg_LoginResp/3}).
-merge_msg_LoginResp(#'LoginResp'{expire_in = PFexpire_in, mission = PFmission}, #'LoginResp'{uid = NFuid, token = NFtoken, expire_in = NFexpire_in, mission = NFmission}, _) ->
+merge_msg_LoginResp(#'LoginResp'{expire_in = PFexpire_in, mission = PFmission, max_score = PFmax_score}, #'LoginResp'{uid = NFuid, token = NFtoken, expire_in = NFexpire_in, mission = NFmission, max_score = NFmax_score}, _) ->
     #'LoginResp'{uid = NFuid, token = NFtoken,
                  expire_in =
                      if NFexpire_in =:= undefined -> PFexpire_in;
@@ -482,6 +492,10 @@ merge_msg_LoginResp(#'LoginResp'{expire_in = PFexpire_in, mission = PFmission}, 
                  mission =
                      if NFmission =:= undefined -> PFmission;
                         true -> NFmission
+                     end,
+                 max_score =
+                     if NFmax_score =:= undefined -> PFmax_score;
+                        true -> NFmax_score
                      end}.
 
 
@@ -521,7 +535,7 @@ v_msg_LoginReq(X, Path, _TrUserData) -> mk_type_error({expected_msg, 'LoginReq'}
 
 -compile({nowarn_unused_function,v_msg_LoginResp/3}).
 -dialyzer({nowarn_function,v_msg_LoginResp/3}).
-v_msg_LoginResp(#'LoginResp'{uid = F1, token = F2, expire_in = F3, mission = F4}, Path, TrUserData) ->
+v_msg_LoginResp(#'LoginResp'{uid = F1, token = F2, expire_in = F3, mission = F4, max_score = F5}, Path, TrUserData) ->
     v_type_string(F1, [uid | Path], TrUserData),
     v_type_string(F2, [token | Path], TrUserData),
     if F3 == undefined -> ok;
@@ -529,6 +543,9 @@ v_msg_LoginResp(#'LoginResp'{uid = F1, token = F2, expire_in = F3, mission = F4}
     end,
     if F4 == undefined -> ok;
        true -> v_type_int32(F4, [mission | Path], TrUserData)
+    end,
+    if F5 == undefined -> ok;
+       true -> v_type_int32(F5, [max_score | Path], TrUserData)
     end,
     ok;
 v_msg_LoginResp(X, Path, _TrUserData) -> mk_type_error({expected_msg, 'LoginResp'}, X, Path).
@@ -605,7 +622,8 @@ get_msg_defs() ->
       [#field{name = uid, fnum = 1, rnum = 2, type = string, occurrence = required, opts = []},
        #field{name = token, fnum = 2, rnum = 3, type = string, occurrence = required, opts = []},
        #field{name = expire_in, fnum = 3, rnum = 4, type = uint32, occurrence = optional, opts = []},
-       #field{name = mission, fnum = 4, rnum = 5, type = int32, occurrence = optional, opts = []}]}].
+       #field{name = mission, fnum = 4, rnum = 5, type = int32, occurrence = optional, opts = []},
+       #field{name = max_score, fnum = 5, rnum = 6, type = int32, occurrence = optional, opts = []}]}].
 
 
 get_msg_names() -> ['LoginReq', 'LoginResp'].
@@ -642,7 +660,8 @@ find_msg_def('LoginResp') ->
     [#field{name = uid, fnum = 1, rnum = 2, type = string, occurrence = required, opts = []},
      #field{name = token, fnum = 2, rnum = 3, type = string, occurrence = required, opts = []},
      #field{name = expire_in, fnum = 3, rnum = 4, type = uint32, occurrence = optional, opts = []},
-     #field{name = mission, fnum = 4, rnum = 5, type = int32, occurrence = optional, opts = []}];
+     #field{name = mission, fnum = 4, rnum = 5, type = int32, occurrence = optional, opts = []},
+     #field{name = max_score, fnum = 5, rnum = 6, type = int32, occurrence = optional, opts = []}];
 find_msg_def(_) -> error.
 
 

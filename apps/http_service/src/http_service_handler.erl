@@ -66,7 +66,7 @@ handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
     end,
     ?INFO_MSG("handle login InitDataInitData=======~p~n", [InitData]),
     DecodeData = morning_msg:decode_msg(binary_to_integer(CMD), InitData),
-    case morning_api_handler:handle(DecodeData) of
+    case morning_c2s_handler:handle(undefined, DecodeData) of
         {ok, R}->
             ?INFO_MSG("handle login sucess=======~p~n", [R]),
             Encodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
@@ -81,11 +81,14 @@ handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
 handle_request(Req, <<"POST">>, [<<"users">>, UserId, CMD] = Path)->
     case cowboy_req:parse_header(<<"authorization">>, Req) of
          {ok, {_, HttpToken}, _}->
+            ?INFO_MSG("handle check token =======UserId:~p~n", [UserId]),
             case morning_token:check_token(UserId, HttpToken) of
                 true->
+                    ?INFO_MSG("handle check token sucess =======UserId:~p~n", [UserId]),
                     {ok, Data, _} = cowboy_req:body(Req),
-                    case morning_api_handler:handle(morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
+                    case morning_c2s_handler:handle(binary_to_integer(UserId), morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
                         {ok, R}->
+                            ?INFO_MSG("handle req  sucess=======UserId:~p~n", [UserId]),
                             Encodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
                             Encodedata1 = morning_msg:packet_http_data('OK', Encodedata),
                             http_reply(Req, Encodedata1);

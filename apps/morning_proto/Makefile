@@ -1,5 +1,5 @@
-PB_PROTOS := ClientCmdConstants Login
-PB_MORNING := ClientCmdConstants Login 
+PB_PROTOS := ClientCmdConstants Login Mission
+PB_MORNING := ClientCmdConstants Login Mission
 
 MORNING_SHARE_DIR := proto
 MORNING_GPB_DIR := $(shell  echo ../../_build/default/lib; )

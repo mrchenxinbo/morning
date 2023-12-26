@@ -33,7 +33,7 @@ delete_role_from_db(_RoleId)->
 	todo.
 
 tables_info()->
-	[{morning_user_info,disc},{stage_level_config,proto}].
+	[{morning_user_info,disc},{stage_level_config,proto},{role_stage_info,disc},{item_config,proto},{role_inventory_info,disc}].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 				behaviour functions end

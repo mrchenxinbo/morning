@@ -52,7 +52,7 @@
 -include("gpb.hrl").
 
 %% enumerated types
--type 'ClientCmd'() :: 'LOGIN_MSG'.
+-type 'ClientCmd'() :: 'LOGIN_MSG' | 'PASS_MISSION'.
 -type 'StatusCode'() :: 'OK' | 'ERROR_PARAMA' | 'ERROR_SERVER' | 'ERROR_TOKEN_TIMEOUT' | 'ERROR_TOKEN_NOT_EXIST' | 'ERROR_TOKEN_NOT_TRUE' | 'ERROR_UNKNOW_HANDLER'.
 -export_type(['ClientCmd'/0, 'StatusCode'/0]).
 
@@ -235,7 +235,7 @@ cons(Elem, Acc, _TrUserData) -> [Elem | Acc].
 
 
 get_msg_defs() ->
-    [{{enum, 'ClientCmd'}, [{'LOGIN_MSG', 1}]},
+    [{{enum, 'ClientCmd'}, [{'LOGIN_MSG', 1}, {'PASS_MISSION', 2}]},
      {{enum, 'StatusCode'}, [{'OK', 1}, {'ERROR_PARAMA', 1000}, {'ERROR_SERVER', 1001}, {'ERROR_TOKEN_TIMEOUT', 1002}, {'ERROR_TOKEN_NOT_EXIST', 1003}, {'ERROR_TOKEN_NOT_TRUE', 1004}, {'ERROR_UNKNOW_HANDLER', 1005}]}].
 
 
@@ -265,7 +265,7 @@ fetch_enum_def(EnumName) ->
 find_msg_def(_) -> error.
 
 
-find_enum_def('ClientCmd') -> [{'LOGIN_MSG', 1}];
+find_enum_def('ClientCmd') -> [{'LOGIN_MSG', 1}, {'PASS_MISSION', 2}];
 find_enum_def('StatusCode') -> [{'OK', 1}, {'ERROR_PARAMA', 1000}, {'ERROR_SERVER', 1001}, {'ERROR_TOKEN_TIMEOUT', 1002}, {'ERROR_TOKEN_NOT_EXIST', 1003}, {'ERROR_TOKEN_NOT_TRUE', 1004}, {'ERROR_UNKNOW_HANDLER', 1005}];
 find_enum_def(_) -> error.
 
@@ -278,10 +278,12 @@ enum_value_by_symbol('ClientCmd', Sym) -> enum_value_by_symbol_ClientCmd(Sym);
 enum_value_by_symbol('StatusCode', Sym) -> enum_value_by_symbol_StatusCode(Sym).
 
 
-enum_symbol_by_value_ClientCmd(1) -> 'LOGIN_MSG'.
+enum_symbol_by_value_ClientCmd(1) -> 'LOGIN_MSG';
+enum_symbol_by_value_ClientCmd(2) -> 'PASS_MISSION'.
 
 
-enum_value_by_symbol_ClientCmd('LOGIN_MSG') -> 1.
+enum_value_by_symbol_ClientCmd('LOGIN_MSG') -> 1;
+enum_value_by_symbol_ClientCmd('PASS_MISSION') -> 2.
 
 enum_symbol_by_value_StatusCode(1) -> 'OK';
 enum_symbol_by_value_StatusCode(1000) -> 'ERROR_PARAMA';
