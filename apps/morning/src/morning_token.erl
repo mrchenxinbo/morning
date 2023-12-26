@@ -31,12 +31,12 @@ check_token(UidBinary, Token)->
                 Now <  Expire->
                     true;
                 true ->
-                    ?INFO_MSG("token check=timeout====~p~n", [UidBinary]),
+                    ?ERROR_MSG("token check=timeout====~p~n", [UidBinary]),
                     ets:delete(?STORE_TOKEN, UidBinary),  
                     {error, 'ERROR_TOKEN_TIMEOUT'}
             end;
         [_|_R]->
-            ?INFO_MSG("token check= not right====~p~n", [UidBinary]),
+            ?ERROR_MSG("token check= not right====~p~n", [UidBinary]),
             {error, 'ERROR_TOKEN_NOT_TRUE'};
         []->
             Key = get_key(UidBinary),
@@ -50,11 +50,11 @@ check_token(UidBinary, Token)->
                             ets:insert(?STORE_TOKEN, TokenInfoR),
                             true;
                         true ->
-                            ?INFO_MSG("token check=timeout====~p~n", [UidBinary]),
+                            ?ERROR_MSG("token check=timeout====~p~n", [UidBinary]),
                             {error, 'ERROR_TOKEN_TIMEOUT'}
                     end; 
                 _->
-                    ?INFO_MSG("token check= null====~p~n", [UidBinary]),
+                    ?ERROR_MSG("token check= null====~p~n", [UidBinary]),
                     {error, 'ERROR_TOKEN_NOT_EXIST'}
             end
     end.
