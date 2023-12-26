@@ -21,6 +21,8 @@
 start()->
     ets:new(?STORE_TOKEN, [named_table, public, {keypos, #token_info.uid}]).
 
+% check_token(UidBinary, undefined)->
+    % true;
 check_token(UidBinary, Token)->
     Now = time_util:erlang_system_time(seconds),
     case ets:lookup(?STORE_TOKEN, UidBinary) of

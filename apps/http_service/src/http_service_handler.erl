@@ -15,7 +15,7 @@
 
 -include("logger.hrl").
 -include("pb_ClientCmdConstants.hrl").
-
+-include("pb_Login.hrl").
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -66,15 +66,21 @@ handle_request(Req, <<"POST">>, [<<"users">>, <<"user_login">>, CMD])->
     end,
     ?INFO_MSG("handle login InitDataInitData=======~p~n", [InitData]),
     DecodeData = morning_msg:decode_msg(binary_to_integer(CMD), InitData),
-    case morning_c2s_handler:handle(undefined, DecodeData) of
-        {ok, R}->
-            ?INFO_MSG("handle login sucess=======~p~n", [R]),
-            Encodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
-            Encodedata1 = morning_msg:packet_http_data('OK', Encodedata),
-            http_reply(Req, Encodedata1);
-        {error, ErrStatus}->
-            ?ERROR_MSG("handle login error=======error_code: ~p re_data:~p~n", [ErrStatus, DecodeData]),
-            Encodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
+    case is_record(DecodeData, 'LoginReq') of
+         true->
+            case morning_c2s_handler:handle(undefined, DecodeData) of
+                {ok, R}->
+                    ?INFO_MSG("handle login sucess=======~p~n", [R]),
+                    Encodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
+                    Encodedata1 = morning_msg:packet_http_data('OK', Encodedata),
+                    http_reply(Req, Encodedata1);
+                {error, ErrStatus}->
+                    ?ERROR_MSG("handle login error=======error_code: ~p re_data:~p~n", [ErrStatus, DecodeData]),
+                    Encodedata1 = morning_msg:packet_http_data(ErrStatus, <<>>),
+                    http_reply(Req, Encodedata1)
+            end;
+        false->
+            Encodedata1 = morning_msg:packet_http_data('ERROR_PARAMA', <<>>),
             http_reply(Req, Encodedata1)
     end;
     
@@ -86,7 +92,16 @@ handle_request(Req, <<"POST">>, [<<"users">>, UserId, CMD] = Path)->
                 true->
                     ?INFO_MSG("handle check token sucess =======UserId:~p~n", [UserId]),
                     {ok, Data, _} = cowboy_req:body(Req),
-                    case morning_c2s_handler:handle(binary_to_integer(UserId), morning_msg:decode_msg(binary_to_integer(CMD), Data)) of
+                    InitData = 
+                    case cowboy_req:parse_header(<<"content-type">>, Req) of
+                        {ok, {<<"application">>,<<"x-protobuf">>,[]},  _Req}->
+                            Data;
+                        {ok, {<<"application">>,<<"x-protobuf-wx">>,[]},  _Req}-> 
+                            parse_wx(Data);
+                        _->
+                            Data
+                    end,
+                    case morning_c2s_handler:handle(binary_to_integer(UserId), morning_msg:decode_msg(binary_to_integer(CMD), InitData)) of
                         {ok, R}->
                             ?INFO_MSG("handle req  sucess=======UserId:~p~n", [UserId]),
                             Encodedata = morning_msg:encode_msg(binary_to_integer(CMD), R), 
