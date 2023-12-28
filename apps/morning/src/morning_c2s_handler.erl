@@ -11,7 +11,6 @@
 
 -module(morning_c2s_handler).
 
-
 -export([handle/2, login_request_other/2, user_login_or_register/3]).
 -export([test_mission/3]).
 
@@ -59,7 +58,7 @@ handle(_Uid, Proto)->
 
 make_login_stage_info(Res, Uid)->
     case model_role_stage_info:read(Uid) of
-        #role_stage_info{mission=Mission, max_score = Max_score}->
+        [#role_stage_info{mission=Mission, max_score = Max_score}]->
             Res#'LoginResp'{mission=Mission, max_score = Max_score};
         _->
             Res#'LoginResp'{mission=0, max_score = 0}
@@ -81,9 +80,6 @@ make_login_stage_info(Res, Uid)->
 test_mission(Uid,M,S)->
     R= #'MissionReq'{mission = M, score = S},
     handle(Uid,R).
-
-
-
 
 
 user_login_or_register(User, Password, Type)->
