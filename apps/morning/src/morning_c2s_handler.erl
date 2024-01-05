@@ -87,7 +87,7 @@ user_login_or_register(User, Password, Type)->
         ?TYPE_PASSWORD ->
             case morning_db_user:user_info_password(util:to_list(User), Type) of
                 {ok, {UidB, Password}}->
-                    morning_db_user:user_info_update_by_uid(util:to_list(User)),
+                    morning_db_user:user_info_update_by_uid(UidB),
                     {Token, Expire} = morning_token:get_token(UidB, Type),        
                     {ok, {UidB, Token, Expire}};
                 {error, not_register}->
