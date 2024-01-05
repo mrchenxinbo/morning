@@ -1,0 +1,24 @@
+[{morning,[
+     {redis, [morning_redis]},
+     {token_ttl, 7200}, 
+     {mysql, [{host,"rm-8vbe676by1ha0k82y.mysql.zhangbei.rds.aliyuncs.com"},
+             {database,"vj_db_001"},
+             {password,"Vj123456"},
+             {user,"vj_mysql_001"},
+             {port, 3306},
+             {query_timeout,3000},
+             {pool_size,6}]},
+      {morning_redis,
+             [
+              {host,"r-8vbrhskmso7tp2b831.redis.zhangbei.rds.aliyuncs.com"},
+              {port,6379},
+              {db,0},
+              {password,"vj_reds_001:Vj123456"},
+              {pool_size,20},
+              {ttl_keepalive_secs,86400},
+              {redis_timeout,1000},
+              {type,redis}]}
+
+]}
+
+].
