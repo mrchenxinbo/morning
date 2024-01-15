@@ -21,8 +21,10 @@
 -include("pb_ClientCmdConstants.hrl").
 -include("pb_Login.hrl").
 -include("pb_Mission.hrl").
+-include("pb_Bag.hrl").
 -include("logger.hrl").
 -include("morning.hrl").
+-include("base_define.hrl").
 -include("model_def.hrl").
 
 %%login
@@ -51,6 +53,36 @@ handle(Uid, #'MissionReq'{mission = Mission, score = Score}=Info)->
             #'MissionResp'{mission=Mission, score=Score, max_score= Score}
     end,
     {ok, Res};
+
+%%Bag
+handle(Uid, #'BagReq'{status = Status, num = Num}=Info) ->
+    if
+        Status =/=2 andalso Status =/= 1->
+            {error, 'ERROR_PARAMA'};
+        true ->
+            case model_role_inventory_info:find([{uid, '=', Uid}, {proto_id, '=', 1}]) of
+                [#role_inventory_info{count = Count}|_]->
+                    if
+                        Status ==2 andalso Count < Num->
+                            {error, 'ERROR_PARAMA'};
+                        true ->
+                        NewCount = ?IF(Status == 1, Count+Num, Count-Num),
+                        Updatefields = [{count, NewCount}, {update_ts, time_util:erlang_system_time(seconds)}],
+                        model_role_inventory_info:update_fields(Updatefields, [{uid, '=', Uid}]),
+                        {ok, #'BagResp'{num = NewCount}} 
+                    end;
+                _->
+                    if
+                        Status ==2 ->
+                            {error, 'ERROR_PARAMA'};
+                        true ->
+                            Record = #role_inventory_info{uid=Uid, count=Num, proto_id=1, update_ts=time_util:erlang_system_time(seconds)},
+                            model_role_inventory_info:insert_auto(Record),
+                            {ok, #'BagResp'{num = Num}} 
+                    end
+            end
+    end;
+    
 
 handle(_Uid, Proto)->
     {error, 'ERROR_UNKNOW_HANDLER'}.

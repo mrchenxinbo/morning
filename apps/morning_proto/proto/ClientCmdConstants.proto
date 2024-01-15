@@ -4,6 +4,7 @@ syntax = "proto3";
 enum ClientCmd {
     LOGIN_MSG = 1; // 登录
     PASS_MISSION = 2;   // 过关
+    ADD_BAG = 3; // 操作道具 
 
 }
 

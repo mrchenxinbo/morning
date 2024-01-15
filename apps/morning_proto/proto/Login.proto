@@ -55,4 +55,5 @@ message LoginResp
     optional uint32 expire_in = 3; // 过期时间 
     optional int32 mission = 4; // 关卡id  当前打到第几关
     optional int32 max_score = 5; //最大分数
+    optional int32 num = 6; // 当前道具数量
 }

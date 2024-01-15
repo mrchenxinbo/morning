@@ -33,16 +33,20 @@ decode('LOGIN_MSG', Binary)->
     decode_do(pb_Login, 'LoginReq', Binary);
 
 decode('PASS_MISSION', Binary)->
-    decode_do(pb_Mission, 'MissionReq', Binary).
+    decode_do(pb_Mission, 'MissionReq', Binary);
 
-
+decode('ADD_BAG', Binary)->
+    decode_do(pb_Bag, 'BagReq', Binary).
 
 %%============encode info  start=====================
 encode('LOGIN_MSG', Data)->
     encode_do(pb_Login, 'LoginResp', Data);
 
 encode('PASS_MISSION', Data)->
-    encode_do(pb_Mission, 'MissionResp', Data).
+    encode_do(pb_Mission, 'MissionResp', Data);
+
+encode('ADD_BAG', Data)->
+    encode_do(pb_Bag, 'BagResp', Data).
 
 
 

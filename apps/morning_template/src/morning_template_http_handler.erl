@@ -85,8 +85,6 @@ handle_request(Req, _Method, _Path)->
 
 
 
-
-
 template_data_to_db(TbName, MapList) ->
 	mysql_client:delete(TbName, " WHERE `id` > 0;"),
 	[M|_]= MapList,
@@ -124,10 +122,6 @@ template_data_to_db(TbName, MapList) ->
 	ValueSql = "("++Columns++") VALUES "++ValueStrs++"; ",
 	mysql_client:insert(TbName, ValueSql);
 
-
-template_data_to_db(TbName, [M|Last])->
-	template_data_to_db(TbName, M),
-	template_data_to_db(TbName, Last);
 template_data_to_db(TbName, [])->	
 	nothing;
 template_data_to_db(TbName, _Other)->
@@ -135,6 +129,8 @@ template_data_to_db(TbName, _Other)->
 
 template_db_to_data(TbName)->
 	case mysql_client:select_with_fields(TbName, " LIMIT 10000;") of
+		{ok, Fields, []}->
+			[];
 		{ok, Fields, Values}->
 			Data =
 			lists:map(fun(Value)->
@@ -143,7 +139,7 @@ template_db_to_data(TbName)->
 			% jsx:encode(Data);
 			Data;
 		error->
-			error	
+			[]	
 	end.
 
 
@@ -180,4 +176,5 @@ http_reply(Req, Data)->
 
 
 template_tables()->
-	[stage_level_config, morning_user_info].
+	application:get_env(morning, template_tables, [stage_level_config,item_config]).
+	

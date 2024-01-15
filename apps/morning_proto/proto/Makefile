@@ -1,6 +1,7 @@
 CC_FILES += Login.pb.cc
 CC_FILES += ClientCmdConstants.pb.cc
 CC_FILES += Mission.pb.cc
+CC_FILES += Bag.pb.cc
 
 all: $(CC_FILES)
 

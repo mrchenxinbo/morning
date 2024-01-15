@@ -1,0 +1,16 @@
+option java_outer_classname = "Bag.proto";
+package proto.client;
+syntax = "proto2";
+
+message BagReq 
+{
+    required int32 status = 1; // 操作类型 1增加2减少
+    required int32 num = 2; //增加的数量 减少的数量
+
+
+}
+
+message BagResp 
+{
+    optional int32 num = 1; // 当前数量
+}
