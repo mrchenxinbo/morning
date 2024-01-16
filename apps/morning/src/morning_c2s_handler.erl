@@ -93,7 +93,7 @@ make_login_stage_info(Res, Uid)->
         [#role_stage_info{mission=Mission, max_score = Max_score}]->
             Res#'LoginResp'{mission=Mission, max_score = Max_score};
         _->
-            Res#'LoginResp'{mission=0, max_score = 0}
+            Res#'LoginResp'{mission=1, max_score = 0}
     end.
 
 
